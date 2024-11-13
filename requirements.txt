@@ -1,0 +1,4 @@
+discord
+dotenv
+discord_ext
+discord.py
