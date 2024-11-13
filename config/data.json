@@ -1,0 +1,133 @@
+{
+  "casino_games": [
+    {
+      "name": "Blackjack",
+      "fun_fact": "Blackjack has the best odds of winning, with a house edge of just 1% in most casinos.",
+      "avg_loss": 100
+    },
+    {
+      "name": "Roulette",
+      "fun_fact": "The numbers on a roulette wheel add up to 666, known as the 'Number of the Beast'.",
+      "avg_loss": 50
+    },
+    {
+      "name": "Poker",
+      "fun_fact": "The longest poker game in history lasted 8 years, 5 months, and 3 days.",
+      "avg_loss": 75
+    },
+    {
+      "name": "Slots",
+      "fun_fact": "The first slot machine was invented in 1895 by Charles Fey in San Francisco.",
+      "avg_loss": 150
+    },
+    {
+      "name": "Baccarat",
+      "fun_fact": "Baccarat is James Bond's favorite casino game.",
+      "avg_loss": 200
+    },
+    {
+      "name": "Craps",
+      "fun_fact": "The term 'craps' is derived from the French word 'crapaud', meaning toad.",
+      "avg_loss": 80
+    },
+    {
+      "name": "Keno",
+      "fun_fact": "Keno originated in China and was used to fund the construction of the Great Wall.",
+      "avg_loss": 60
+    }
+  ],
+  "games": {
+    "blackjack": {
+      "friendly_name": "Black Jack",
+      "description": "A card game where players try to beat the dealer by getting a hand of 21 or closer, without going over.",
+      "author_img": "casino-chip-1.png",
+      "color": "#00ff00",
+      "win_chance": 0.49
+    },
+    "roulette": {
+      "friendly_name": "Roulette",
+      "description": "A casino game where players try to guess the color of the ball that lands on the table.",
+      "author_img": "casino-chip-3.png",
+      "color": "#ff0000",
+      "win_chance": 0.47
+    },
+    "guessthenumber": {
+      "friendly_name": "Guess the Number",
+      "description": "A simple game where players guess a number between 1 and 100.",
+      "author_img": "casino-chip-4.png",
+      "color": "#ffff00",
+      "multiplier": 5,
+      "attempts": 3
+    },
+    "double_or_nothing": {
+      "friendly_name": "Double or Nothing",
+      "description": "A simple game where players bet on whether to double their money or lose it all.",
+      "author_img": "casino-chip-2.png",
+      "color": "#7d00ff",
+      "win_chance": 0.44,
+      "max_rounds": 5
+    }
+  },
+
+  "achievements": {
+    "balance_patch_1": {
+      "name": "Poor",
+      "description": "Achieved after reaching a certain balance in the casino.",
+      "icon": "patch-1.png",
+      "balance_required": 1100
+    },
+    "balance_patch_2": {
+      "name": "Rich",
+      "description": "Achieved after reaching a higher balance in the casino.",
+      "icon": "patch-2.png",
+      "balance_required": 5500
+    },
+    "balance_patch_3": {
+      "name": "Super Rich",
+      "description": "Achieved after reaching an even higher balance in the casino.",
+      "icon": "patch-3.png",
+      "balance_required": 10000
+    },
+    "balance_patch_4": {
+      "name": "Ultra Rich",
+      "description": "Achieved after reaching a very high balance in the casino.",
+      "icon": "patch-4.png",
+      "balance_required": 25000
+    },
+    "balance_patch_5": {
+      "name": "Billionaire",
+      "description": "The ultimate achievement, reached after reaching the highest balance in the casino.",
+      "icon": "patch-5.png",
+      "balance_required": 50000
+    },
+    "wins_patch_1": {
+      "name": "Winner",
+      "description": "Achieved after winning 20 of your favourite games.",
+      "icon": "patch-6.png",
+      "wins_required": 20
+    },
+    "double_patch_1": {
+      "name": "Double Down",
+      "description": "Achieved after doubling your bet 15 times.",
+      "icon": "patch-7.png",
+      "doubles_required": 15
+    },
+    "leave_patch_1": {
+      "name": "Leaver",
+      "description": "Achieved after leaving the game 30 times.",
+      "icon": "patch-8.png",
+      "leaves_required": 30
+    },
+    "claim_patch_1": {
+      "name": "Claim Master",
+      "description": "Achieved after claiming rewards daily for 5 days.",
+      "icon": "patch-9.png",
+      "days_claimed_required": 5
+    },
+    "leaderboard_patch_1": {
+      "name": "Top of the Leaderboard",
+      "description": "Achieved after being the top player on the leaderboard.",
+      "icon": "patch-10.png"
+    }
+  }
+}
