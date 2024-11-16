@@ -1,4 +1,6 @@
 {
+  "version": "v1.6",
+  "footer_text": "Copyright 2024 justwaitfor_me. All rights reserved. | Gambling can lead to financial loss, addiction, and emotional distress!",
   "commands": [
     ["`/help`", "Lists all available commands"],
     ["`/play`", "Play the casino games"],
@@ -57,8 +59,9 @@
       "author_img": "casino-chip-1.png",
       "color": "#00ff00",
       "win_chance": 0.49,
+      "no_card": "<:karte1:1307351973129097407>",
       "card_emojis": {
-        "1": "<:karte1:1307351973129097407>",
+        "1": "<:karte11:1307351286550757427>", 
         "2": "<:karte2:1307351443488903230>",
         "3": "<:karte3:1307351431329611827>",
         "4": "<:karte4:1307351415286403162>",

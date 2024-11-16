@@ -17,6 +17,10 @@ def get_serverdata(guild_id = None):
     with open("config/serverdata.json", "r") as file:
         return json.load(file)
 
+def get_footer():
+    data = get_data()
+    return f"{data['footer_text']} | Version: {data['version']}"
+
 
 def user(interaction):
     if interaction.user != interaction.message.interaction.user:

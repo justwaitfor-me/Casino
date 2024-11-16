@@ -93,7 +93,7 @@ async def list(interaction: discord.Interaction):
 @bot.tree.command(name="play", description="Play the casino games")
 @app_commands.describe(bet="The amount you want to bet")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def play(interaction: discord.Interaction, bet: int):
@@ -104,10 +104,10 @@ async def play(interaction: discord.Interaction, bet: int):
         __file__,
     )
     user_data = check_user(interaction.user.id, interaction.guild.id)
-    balance = user_data['balance']
+    balance = user_data["balance"]
 
     max_bet = int(
-        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]['config'][
+        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]["config"][
             "max_bet"
         ]
     )
@@ -171,7 +171,7 @@ async def play(interaction: discord.Interaction, bet: int):
                 value="slot_machine",
             ),
             discord.SelectOption(
-                label="Pferde Wettem",
+                label="Pferde Wetten",
                 description="Currently unavailable",
                 emoji="<:casinochip6:1307379735147577394>",
                 value="pferde_wettem",
@@ -183,6 +183,13 @@ async def play(interaction: discord.Interaction, bet: int):
 
     # Define callback for the Select menu
     async def select_callback(interaction):
+        # Check if the user interacting with the menu is the same as the one who invoked the command
+        if not user(interaction):
+            await interaction.response.send_message(
+                "You can't interact with this menu.", ephemeral=True
+            )
+            return
+
         selected_game = games_menu.values[0]  # Get the selected value
         if selected_game == "blackjack":
             await blackjack_callback(interaction, bet)
@@ -222,7 +229,7 @@ async def play(interaction: discord.Interaction, bet: int):
         f"`Balance: {balance}$`\n`Bet: {bet}$`\n\n**Available Games:**\n",
         view=view,
         ephemeral=False,
-    )
+    ) 
 
 
 @bot.tree.command(name="daily", description="Claim your daily reward")
@@ -597,10 +604,13 @@ async def edit_server_config(interaction: discord.Interaction):
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def release_notes(ctx):
-    with open("docs/release_notes.txt", "r") as file:
+    with open(f"docs/{get_data()['version']}.txt", "r") as file:
         notes = file.read()
     await ctx.send(f"**{ctx.guild.default_role} Release Notes:**\n{notes}")
 
+@bot.command()
+async def version(ctx):
+    await ctx.send(f"Version: {get_data()['version']}")
 
 @bot.command()
 async def ping(ctx):
@@ -642,4 +652,4 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-bot.run(os.environ['TOKEN'], log_handler=handler)
+bot.run(os.environ['TOKEN'])#, log_handler=handler)
