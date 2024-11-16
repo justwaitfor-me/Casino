@@ -58,7 +58,7 @@ async def on_ready():
     await bot.change_presence(
         activity=discord.Activity(
             type=discord.ActivityType.playing,
-            name=f"{casino_game["name"]} | /help for commands",
+            name=f"{casino_game['name']} | /help for commands",
             state=casino_game["fun_fact"],
         )
     )
