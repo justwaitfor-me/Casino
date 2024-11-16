@@ -619,6 +619,8 @@ async def slot_machine_callback(interaction, bet: int):
             left_arrow = ""
             right_arrow = ""
 
+            left_arrow = ""
+            right_arrow = ""
             for i in range(16):  # Update the spin 10 times to simulate animation
                 future_result = [
                     random.choices(slot_symbols, weights=slot_odds, k=2)
@@ -626,8 +628,16 @@ async def slot_machine_callback(interaction, bet: int):
                 ]
                 future_arrow = random.choice(data['games'][game]['arrows'])
 
-                content = f"{self.interactionx.user.mention}\n# {future_arrow}{" | ".join([f"{' | '.join(line)}" for line in future_result])}{future_arrow}\n# **{current_arrow}{right_arrow}{" | ".join([f"{' | '.join(line)}" for line in current_result])}{left_arrow}{current_arrow}**\n# {prev_arrow}{" | ".join([f"{' | '.join(line)}" for line in prev_result])}{prev_arrow}"
+                future_result_str = " | ".join([f"{' | '.join(line)}" for line in future_result])
+                current_result_str = " | ".join([f"{' | '.join(line)}" for line in current_result])
+                prev_result_str = " | ".join([f"{' | '.join(line)}" for line in prev_result])
 
+                content = (
+                    f"{self.interactionx.user.mention}\n"
+                    f"# {future_arrow}{future_result_str}{future_arrow}\n"
+                    f"# **{current_arrow}{right_arrow}{current_result_str}{left_arrow}{current_arrow}**\n"
+                    f"# {prev_arrow}{prev_result_str}{prev_arrow}"
+                )
                 prev_result = current_result
                 current_result = future_result
 
@@ -649,6 +659,7 @@ async def slot_machine_callback(interaction, bet: int):
                     left_arrow = data['games'][game]['final_arrows'][1]
                 else:
                     await asyncio.sleep(0.1 * (i / 2))  # Wait before updating again
+
 
             await asyncio.sleep(1.5)
 
