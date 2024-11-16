@@ -25,8 +25,8 @@ async def blackjack_callback(interaction, bet: int):
 
     random.shuffle(deck)
 
-    card_emojis = data["games"][game]["card_emojis"]
-    descriptions = data["games"][game]["descriptions"]
+    card_emojis = data['games'][game]['card_emojis']
+    descriptions = data['games'][game]['descriptions']
 
     # Modify the draw_card function to return the card number and its corresponding emoji
     def draw_card(hand):
@@ -41,7 +41,7 @@ async def blackjack_callback(interaction, bet: int):
         player_hand_emojis = " ".join([card_emojis[str(card)] for card in player_hand])
         dealer_hand_emojis = (
             " ".join([card_emojis[str(card)] for card in dealer_hand[:1]])
-            + f" + {card_emojis["1"]}"
+            + f" + {card_emojis['1']}"
             if len(dealer_hand) > 1
             else card_emojis[str(dealer_hand[0])]
         )
@@ -52,9 +52,9 @@ async def blackjack_callback(interaction, bet: int):
             description = f"{data['games'][game]['description']}"
 
         embed = discord.Embed(
-            title=data["games"][game]["friendly_name"],
+            title=data['games'][game]['friendly_name'],
             description=description,
-            color=discord.Color.from_str(data["games"][game]["color"]),
+            color=discord.Color.from_str(data['games'][game]['color']),
             timestamp=datetime.now(),
         )
 
@@ -168,17 +168,17 @@ async def double_or_nothing_callback(interaction, bet: int):
 
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
-    double_or_nothing_chance = data["games"][game]["win_chance"]
-    max_rounds = data["games"][game]["max_rounds"]
+    double_or_nothing_chance = data['games'][game]['win_chance']
+    max_rounds = data['games'][game]['max_rounds']
 
     current_round = 1
     current_amount = bet
 
     async def update_embed():
         embed = discord.Embed(
-            title=data["games"][game]["friendly_name"],
-            description=data["games"][game]["description"],
-            color=discord.Color.from_str(data["games"][game]["color"]),
+            title=data['games'][game]['friendly_name'],
+            description=data['games'][game]['description'],
+            color=discord.Color.from_str(data['games'][game]['color']),
             timestamp=datetime.now(),
         )
         embed.set_author(
@@ -291,9 +291,9 @@ async def roulette_callback(interaction, bet: int):
     game = "roulette"
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
-    roulette_colors = data["games"][game]["roulette_colors"]
-    roulette_odds = data["games"][game]["roulette_odds"]
-    roulette_multiplier = data["games"][game]["roulette_multiplier"]
+    roulette_colors = data['games'][game]['roulette_colors']
+    roulette_odds = data['games'][game]['roulette_odds']
+    roulette_multiplier = data['games'][game]['roulette_multiplier']
 
     current_amount = bet
     selected_color = None
@@ -339,9 +339,9 @@ async def roulette_callback(interaction, bet: int):
 
     async def update_embed():
         embed = discord.Embed(
-            title=data["games"][game]["friendly_name"],
-            description=data["games"][game]["description"],
-            color=discord.Color.from_str(data["games"][game]["color"]),
+            title=data['games'][game]['friendly_name'],
+            description=data['games'][game]['description'],
+            color=discord.Color.from_str(data['games'][game]['color']),
             timestamp=datetime.now(),
         )
         embed.set_author(
@@ -411,17 +411,17 @@ async def guess_the_number_callback(interaction, bet: int):
 
     # Game settings
     target_number = random.randint(1, 10)  # Number to guess
-    attempts = data["games"][game]["attempts"]  # Number of attempts allowed
+    attempts = data['games'][game]['attempts']  # Number of attempts allowed
     current_attempt = 0
-    multiplier = data["games"][game]["multiplier"]  # Multiplier for correct guess
+    multiplier = data['games'][game]['multiplier']  # Multiplier for correct guess
     win_amount = bet * multiplier
 
     async def update_embed():
         """Creates the dynamic embed to show game state to the user."""
         embed = discord.Embed(
-            title=data["games"][game]["friendly_name"],
-            description=data["games"][game]["description"],
-            color=discord.Color.from_str(data["games"][game]["color"]),
+            title=data['games'][game]['friendly_name'],
+            description=data['games'][game]['description'],
+            color=discord.Color.from_str(data['games'][game]['color']),
             timestamp=datetime.now(),
         )
         embed.set_author(
@@ -531,12 +531,12 @@ async def slot_machine_callback(interaction, bet: int):
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
     # Slot data from the JSON configuration
-    slot_data = data["games"][game]["slot_data"]  # New JSON structure
-    slot_symbols = [item["symbol"] for item in slot_data]
-    slot_odds = [item["odds"] for item in slot_data]
-    slot_multipliers = {item["symbol"]: item["multiplier"] for item in slot_data}
+    slot_data = data['games'][game]['slot_data']  # New JSON structure
+    slot_symbols = [item['symbol'] for item in slot_data]
+    slot_odds = [item['odds'] for item in slot_data]
+    slot_multipliers = {item['symbol']: item['multiplier'] for item in slot_data}
     additional_multipliers = {
-        item["symbol"]: item["additional_multiplier"] for item in slot_data
+        item['symbol']: item['additional_multiplier'] for item in slot_data
     }
 
     # Current bet and result placeholder
@@ -553,7 +553,7 @@ async def slot_machine_callback(interaction, bet: int):
                 f"**Multiplier:** {item['multiplier']}x | **Additional:** +{item['additional_multiplier']}x"
                 for item in slot_data
             )
-            chances_description += "\n\n" + "".join(data["games"][game]["descriptions"])
+            chances_description += "\n\n" + "".join(data['games'][game]['descriptions'])
         else:
             chances_description = ""
 
@@ -563,9 +563,9 @@ async def slot_machine_callback(interaction, bet: int):
         )
 
         embed = discord.Embed(
-            title=data["games"][game]["friendly_name"],
+            title=data['games'][game]['friendly_name'],
             description=description,
-            color=discord.Color.from_str(data["games"][game]["color"]),
+            color=discord.Color.from_str(data['games'][game]['color']),
             timestamp=datetime.now(),
         )
         embed.set_author(
@@ -613,8 +613,8 @@ async def slot_machine_callback(interaction, bet: int):
                 random.choices(slot_symbols, weights=slot_odds, k=2) for _ in range(3)
             ]
 
-            prev_arrow = random.choice(data["games"][game]["arrows"])
-            current_arrow = random.choice(data["games"][game]["arrows"])
+            prev_arrow = random.choice(data['games'][game]['arrows'])
+            current_arrow = random.choice(data['games'][game]['arrows'])
 
             left_arrow = ""
             right_arrow = ""
@@ -624,7 +624,7 @@ async def slot_machine_callback(interaction, bet: int):
                     random.choices(slot_symbols, weights=slot_odds, k=2)
                     for _ in range(3)
                 ]
-                future_arrow = random.choice(data["games"][game]["arrows"])
+                future_arrow = random.choice(data['games'][game]['arrows'])
 
                 content = f"{self.interactionx.user.mention}\n# {future_arrow}{" | ".join([f"{' | '.join(line)}" for line in future_result])}{future_arrow}\n# **{current_arrow}{right_arrow}{" | ".join([f"{' | '.join(line)}" for line in current_result])}{left_arrow}{current_arrow}**\n# {prev_arrow}{" | ".join([f"{' | '.join(line)}" for line in prev_result])}{prev_arrow}"
 
@@ -645,8 +645,8 @@ async def slot_machine_callback(interaction, bet: int):
                     await asyncio.sleep(0.1)  # Wait before updating again
                 elif i == 14:
                     current_arrow = ""
-                    right_arrow = data["games"][game]["final_arrows"][0]
-                    left_arrow = data["games"][game]["final_arrows"][1]
+                    right_arrow = data['games'][game]['final_arrows'][0]
+                    left_arrow = data['games'][game]['final_arrows'][1]
                 else:
                     await asyncio.sleep(0.1 * (i / 2))  # Wait before updating again
 

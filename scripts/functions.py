@@ -27,14 +27,14 @@ def user(interaction):
 
 def counts(user_id, guild_id, type: str):
     serverdata = get_serverdata()
-    user_data = serverdata[str(guild_id)]["users"][str(user_id)]
+    user_data = serverdata[str(guild_id)]['users'][str(user_id)]
 
-    user_data["counts"][type] += 1
+    user_data['counts'][type] += 1
 
     if type == "count_gambles":
-        user_data["last_gamble"] = datetime.now().date().isoformat()
+        user_data['last_gamble'] = datetime.now().date().isoformat()
 
-    serverdata[str(guild_id)]["users"][str(user_id)] = user_data
+    serverdata[str(guild_id)]['users'][str(user_id)] = user_data
     with open("config/serverdata.json", "w") as file:
         json.dump(serverdata, file, indent=4)
 
@@ -71,10 +71,10 @@ def check_user(user_id, guild_id):
 
     guild_data = serverdata[str(guild_id)]
     if "users" not in guild_data:
-        guild_data["users"] = {}
+        guild_data['users'] = {}
 
-    if str(user_id) not in guild_data["users"]:
-        guild_data["users"][str(user_id)] = {
+    if str(user_id) not in guild_data['users']:
+        guild_data['users'][str(user_id)] = {
             "balance": 1000,
             "last_daily": "Never",
             "inventory": [],
@@ -87,14 +87,14 @@ def check_user(user_id, guild_id):
         with open("config/serverdata.json", "w") as file:
             json.dump(serverdata, file, indent=4)
 
-    user_data = guild_data["users"][str(user_id)]
+    user_data = guild_data['users'][str(user_id)]
     achievement_system = AchievementSystem(user_data)
     new_achievements = achievement_system.check_achievements()
 
     if new_achievements:
-        user_data["inventory"].extend([a for a in new_achievements if a not in user_data["inventory"]])
+        user_data['inventory'].extend([a for a in new_achievements if a not in user_data['inventory']])
 
-        serverdata[str(guild_id)]["users"][str(user_id)] = user_data
+        serverdata[str(guild_id)]['users'][str(user_id)] = user_data
         with open("config/serverdata.json", "w") as file:
             json.dump(serverdata, file, indent=4)
 
@@ -105,9 +105,9 @@ def subtract_balance(user_id, guild_id, amount):
     serverdata = get_serverdata()
     user_data = check_user(user_id, guild_id)
 
-    user_data["balance"] -= amount
+    user_data['balance'] -= amount
 
-    serverdata[str(guild_id)]["users"][str(user_id)] = user_data
+    serverdata[str(guild_id)]['users'][str(user_id)] = user_data
     with open("config/serverdata.json", "w") as file:
         json.dump(serverdata, file, indent=4)
 
@@ -124,7 +124,7 @@ def create_daily_log_file():
 def is_richest(user_id, guild_id):
     serverdata = get_serverdata()
     guild_data = serverdata[str(guild_id)]
-    richest_user = max(guild_data["users"], key=lambda x: guild_data["users"][x]["balance"])
+    richest_user = max(guild_data['users'], key=lambda x: guild_data['users'][x]['balance'])
 
     return str(user_id) == richest_user
 
@@ -145,8 +145,8 @@ def add_balance(user_id, guild_id, amount):
     serverdata = get_serverdata()
     user_data = check_user(user_id, guild_id)
 
-    user_data["balance"] += amount
-    serverdata[str(guild_id)]["users"][str(user_id)] = user_data
+    user_data['balance'] += amount
+    serverdata[str(guild_id)]['users'][str(user_id)] = user_data
     with open("config/serverdata.json", "w") as file:
         json.dump(serverdata, file, indent=4)
 
