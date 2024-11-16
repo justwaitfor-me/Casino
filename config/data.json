@@ -1,4 +1,18 @@
 {
+  "commands": [
+    ["`/help`", "Lists all available commands"],
+    ["`/play`", "Play the casino games"],
+    ["`/daily`", "Claim your daily reward"],
+    ["`/info`", "Display user information"],
+    ["`/achievements`", "Display all possible achievements"],
+    ["`/leaderboard`", "Display the top 10 players"],
+    ["`/send`", "Send money to another user"],
+    ["`/balance`", "Display the current balance of a user"],
+    ["`/add_balance`", "Add money to a users account (ADMIN)"],
+    ["`/remove_balance`", "Remove money from a users account (ADMIN)"],
+    ["`/download_logs`", "Download the current logs to a text file (ADMIN)"],
+    ["`/edit_config`", "Edit configuration settings for the Server (ADMIN)"]
+  ],
   "casino_games": [
     {
       "name": "Blackjack",
@@ -42,21 +56,47 @@
       "description": "A card game where players try to beat the dealer by getting a hand of 21 or closer, without going over.",
       "author_img": "casino-chip-1.png",
       "color": "#00ff00",
-      "win_chance": 0.49
+      "win_chance": 0.49,
+      "card_emojis": {
+        "1": "<:karte1:1307351973129097407>",
+        "2": "<:karte2:1307351443488903230>",
+        "3": "<:karte3:1307351431329611827>",
+        "4": "<:karte4:1307351415286403162>",
+        "5": "<:karte5:1307351400287834163>",
+        "6": "<:karte6:1307351382185213952>",
+        "7": "<:karte7:1307351368696336415>",
+        "8": "<:karte8:1307351354351812699>",
+        "9": "<:karte9:1307351341122719807>",
+        "10": "<:karte10:1307351318523936849>",
+        "11": "<:karte11:1307351286550757427>"
+      },
+      "descriptions": [
+        "**Blackjack Regeln:**\n",
+        "- Ziel: Kommen Sie so nahe wie moeglich an **21**, ohne diese zu ueberschreiten.\n",
+        "- Kartenwerte: Zahlkarten zaehlen ihren Wert, Asse **1 oder 11**.\n",
+        "- Schlagen Sie die Hand des Dealers, indem Sie eine hoehere Punktzahl haben, ohne ueber **21** zu gehen.\n",
+        "- Dealer zieht Karten, bis er mindestens **17** erreicht. Er gewinnt bei hoeherer Punktzahl, solange er nicht ueber **21** geht.\n",
+        "- Überschreiten Sie **21**, verlieren Sie sofort.\n",
+        "- **Hit:** Ziehen Sie eine Karte.\n",
+        "- **Stand:** Beenden Sie Ihren Zug, und der Dealer spielt seine Hand."
+      ]
     },
     "roulette": {
       "friendly_name": "Roulette",
       "description": "A casino game where players try to guess the color of the ball that lands on the table.",
       "author_img": "casino-chip-3.png",
       "color": "#ff0000",
-      "win_chance": 0.47
+      "win_chance": 0.47,
+      "roulette_colors": ["Red", "Black", "Green"],
+      "roulette_odds": [18, 18, 2],
+      "roulette_multiplier": { "Red": 2, "Black": 2, "Green": 14 }
     },
     "guessthenumber": {
       "friendly_name": "Guess the Number",
-      "description": "A simple game where players guess a number between 1 and 100.",
+      "description": "A simple game where players guess a number between 1 and 10.",
       "author_img": "casino-chip-4.png",
       "color": "#ffff00",
-      "multiplier": 5,
+      "multiplier": 3,
       "attempts": 3
     },
     "double_or_nothing": {
@@ -66,6 +106,72 @@
       "color": "#7d00ff",
       "win_chance": 0.44,
       "max_rounds": 5
+    },
+    "slot_machine": {
+      "friendly_name": "Slot Machine",
+      "description": "A simple game where players bet on whether to win or lose a certain amount of money.",
+      "author_img": "casino-chip-5.png",
+      "color": "#0000ff",
+      "descriptions": [
+        "**Slot regeln:**\n",
+        "- Match **3 or more symbols** to win\n",
+        "- **More matches** = **Higher multiplier**\n",
+        "- Each symbol has a unique multiplier\n",
+        "- Additional matches boost your winnings\n",
+        "- Aim for rare symbols for bigger payouts!"
+      ],
+      "slot_data": [
+        {
+          "symbol": "<:slots1:1307141262800850964>",
+          "odds": 0.16,
+          "multiplier": 2.3,
+          "additional_multiplier": 1.1
+        },
+        {
+          "symbol": "<:slots5:1307141322708221972>",
+          "odds": 0.18,
+          "multiplier": 1.1,
+          "additional_multiplier": 1.2
+        },
+        {
+          "symbol": "<:slots4:1307141305888936046>",
+          "odds": 0.18,
+          "multiplier": 1.1,
+          "additional_multiplier": 1.3
+        },
+        {
+          "symbol": "<:slots3:1307141288335773836>",
+          "odds": 0.14,
+          "multiplier": 2.5,
+          "additional_multiplier": 1.4
+        },
+        {
+          "symbol": "<:slots2:1307141276080148616>",
+          "odds": 0.12,
+          "multiplier": 3,
+          "additional_multiplier": 1.5
+        },
+        {
+          "symbol": "<:slots6:1307142357363458108>",
+          "odds": 0.11,
+          "multiplier": 3.4,
+          "additional_multiplier": 1.6
+        }
+      ],
+      "arrows": [
+        "<:arrowdown1:1307111943060062319>",
+        "<:arrowdown2:1307112059418447993>",
+        "<:arrowdown3:1307112127944855635>",
+        "<:arrowdown4:1307112189534146581>",
+        "<:arrowdown5:1307114676618002522>",
+        "<:arrowdown6:1307114696804925460>",
+        "<:arrowdown7:1307114718695133194>",
+        "<:arrowdown8:1307114740304318484>"
+      ],
+      "final_arrows": [
+        "<:arrowright1:1307119180553654327>",
+        "<:arrowleft1:1307119163679969383>"
+      ]
     }
   },
 
@@ -74,60 +180,113 @@
       "name": "Poor",
       "description": "Achieved after reaching a certain balance in the casino.",
       "icon": "patch-1.png",
+      "emoji": "<:patch1:1307025121306873866>",
       "balance_required": 1100
     },
     "balance_patch_2": {
       "name": "Rich",
       "description": "Achieved after reaching a higher balance in the casino.",
       "icon": "patch-2.png",
+      "emoji": "<:patch2:1307025142773452861>",
       "balance_required": 5500
     },
     "balance_patch_3": {
       "name": "Super Rich",
       "description": "Achieved after reaching an even higher balance in the casino.",
       "icon": "patch-3.png",
+      "emoji": "<:patch3:1307025157629542482>",
       "balance_required": 10000
     },
     "balance_patch_4": {
       "name": "Ultra Rich",
       "description": "Achieved after reaching a very high balance in the casino.",
       "icon": "patch-4.png",
+      "emoji": "<:patch4:1307025169788702900>",
       "balance_required": 25000
     },
     "balance_patch_5": {
-      "name": "Billionaire",
-      "description": "The ultimate achievement, reached after reaching the highest balance in the casino.",
+      "name": "Proffessional",
+      "description": "The ultimate achievement, reached after reaching 50k balance in the casino.",
       "icon": "patch-5.png",
+      "emoji": "<:patch5:1307025186578501704>",
       "balance_required": 50000
+    },
+    "balance_patch_6": {
+      "name": "Millionaire",
+      "description": "Achieved after reaching a million balance in the casino.",
+      "icon": "patch-11.png",
+      "emoji": "<:patch15:1307059872247840819>",
+      "balance_required": 1000000
+    },
+    "balance_patch_7": {
+      "name": "Multi-Millionaire",
+      "description": "Achieved after reaching a multi-million balance in the casino.",
+      "icon": "patch-12.png",
+      "emoji": "<:patch12:1307059816375521342>",
+      "balance_required": 5000000
+    },
+    "balance_patch_8": {
+      "name": "Tycoon",
+      "description": "Achieved after reaching a tycoon-level balance in the casino.",
+      "icon": "patch-13.png",
+      "emoji": "<:patch13:1307059833161252964>",
+      "balance_required": 10000000
+    },
+    "balance_patch_9": {
+      "name": "Mogul",
+      "description": "Achieved after reaching a mogul-level balance in the casino.",
+      "icon": "patch-14.png",
+      "emoji": "<:patch14:1307059855789654016>",
+      "balance_required": 25000000
+    },
+    "balance_patch_10": {
+      "name": "Casino King",
+      "description": "Achieved after reaching the pinnacle of casino wealth.",
+      "icon": "patch-15.png",
+      "emoji": "<:patch15:1307059872247840819>",
+      "balance_required": 100000000
     },
     "wins_patch_1": {
       "name": "Winner",
       "description": "Achieved after winning 20 of your favourite games.",
       "icon": "patch-6.png",
+      "emoji": "<:patch6:1307025202294689853>",
       "wins_required": 20
     },
     "double_patch_1": {
       "name": "Double Down",
       "description": "Achieved after doubling your bet 15 times.",
       "icon": "patch-7.png",
+      "emoji": "<:patch7:1307025217503232062>",
       "doubles_required": 15
     },
     "leave_patch_1": {
       "name": "Leaver",
       "description": "Achieved after leaving the game 30 times.",
       "icon": "patch-8.png",
+      "emoji": "<:patch8:1307025232153804810>",
       "leaves_required": 30
     },
     "claim_patch_1": {
       "name": "Claim Master",
       "description": "Achieved after claiming rewards daily for 5 days.",
       "icon": "patch-9.png",
+      "emoji": "<:patch9:1307025246653775987>",
       "days_claimed_required": 5
     },
     "leaderboard_patch_1": {
-      "name": "Top of the Leaderboard",
+      "name": "Leaderboard Hero",
       "description": "Achieved after being the top player on the leaderboard.",
-      "icon": "patch-10.png"
+      "icon": "patch-10.png",
+      "emoji": "<:patch10:1307025260964610138>",
+      "leaderboard_first_required": 1
+    },
+    "roulette_patch_1": {
+      "name": "Green Master",
+      "description": "Achieved when betting on green 50 times.",
+      "icon": "patch-16.png",
+      "emoji": "<:patch16:1307073378749775922>",
+      "roulette_green_bets_required": 50
     }
   }
 }
