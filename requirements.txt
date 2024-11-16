@@ -1,4 +1,5 @@
 discord
 dotenv
 discord_ext
-discord.py
+discord_ui
+datetime 

@@ -3,7 +3,7 @@ import json
 class AchievementSystem:
     def __init__(self, user_data):
         self.user_data = user_data
-        with open("config\data.json", "r") as file:
+        with open("config/data.json", "r") as file:
             data = json.load(file)
         self.achievements = data.get("achievements", {})
 
@@ -54,7 +54,7 @@ class AchievementSystem:
         return achieved
 
 def get_achievement(achievement):
-    with open("config\data.json", "r") as file:
+    with open("config/data.json", "r") as file:
         data = json.load(file)
     achievements = data.get("achievements", {})
 
