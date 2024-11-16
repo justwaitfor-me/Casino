@@ -47,7 +47,7 @@ async def blackjack_callback(interaction, bet: int):
         )
 
         if not final:
-            description = f"{data['games'][game]['description']}\n\n{"".join(descriptions)}"
+            description = f"{data['games'][game]['description']}\n\n{''.join(descriptions)}"
         else:
             description = f"{data['games'][game]['description']}"
 
