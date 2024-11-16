@@ -59,19 +59,19 @@ async def on_ready():
         activity=discord.Activity(
             type=discord.ActivityType.playing,
             name=f"{casino_game['name']} | /help for commands",
-            state=casino_game["fun_fact"],
+            state=casino_game['fun_fact'],
         )
     )
 
 
 @bot.tree.command(name="help", description="Lists all available commands")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def list(interaction: discord.Interaction):
     log(interaction.user.id, interaction.user.name, "/help command used", __file__)
-    commands_list = get_data()["commands"]
+    commands_list = get_data()['commands']
 
     embed = discord.Embed(
         title="Available Commands",
@@ -93,7 +93,7 @@ async def list(interaction: discord.Interaction):
 @bot.tree.command(name="play", description="Play the casino games")
 @app_commands.describe(bet="The amount you want to bet")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def play(interaction: discord.Interaction, bet: int):
@@ -104,10 +104,10 @@ async def play(interaction: discord.Interaction, bet: int):
         __file__,
     )
     user_data = check_user(interaction.user.id, interaction.guild.id)
-    balance = user_data["balance"]
+    balance = user_data['balance']
 
     max_bet = int(
-        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]["config"][
+        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]['config'][
             "max_bet"
         ]
     )
@@ -227,7 +227,7 @@ async def play(interaction: discord.Interaction, bet: int):
 
 @bot.tree.command(name="daily", description="Claim your daily reward")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def daily(interaction: discord.Interaction):
@@ -250,15 +250,15 @@ async def daily(interaction: discord.Interaction):
 
         serverdata = get_serverdata()
         reward_amount = int(
-            serverdata[str(interaction.guild.id)]["config"]["daily_reward"]
+            serverdata[str(interaction.guild.id)]['config']['daily_reward']
         )  # Example reward amoun
 
         add_balance(interaction.user.id, interaction.guild.id, reward_amount)
         serverdata = get_serverdata()
-        userdata = serverdata[str(interaction.guild.id)]["users"]
-        userdata[str(interaction.user.id)]["last_daily"] = current_date.isoformat()
+        userdata = serverdata[str(interaction.guild.id)]['users']
+        userdata[str(interaction.user.id)]['last_daily'] = current_date.isoformat()
 
-        serverdata[str(interaction.guild.id)]["users"] = userdata
+        serverdata[str(interaction.guild.id)]['users'] = userdata
         with open("config/serverdata.json", "w") as file:
             json.dump(serverdata, file, indent=4)
 
@@ -273,7 +273,7 @@ async def daily(interaction: discord.Interaction):
 @bot.tree.command(name="info", description="Display user information")
 @app_commands.describe(user="The user to display information for (optional)")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def userinfo(interaction: discord.Interaction, user: discord.Member = None):  # noqa: F811
@@ -285,7 +285,7 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
         __file__,
     )
     user_data = check_user(target_user.id, interaction.guild_id)
-    balance = user_data["balance"]
+    balance = user_data['balance']
 
     last_daily = user_data.get("last_daily", "Never")
     if last_daily != "Never":
@@ -317,13 +317,13 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
 
 @bot.tree.command(name="balance", description="Display your current balance∞")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def balance(interaction: discord.Interaction):
     log(interaction.user.id, interaction.user.name, "/balance command used", __file__)
     user_data = check_user(interaction.user.id, interaction.guild_id)
-    balance = user_data["balance"]
+    balance = user_data['balance']
 
     embed = discord.Embed(
         title="Your Balance",
@@ -342,7 +342,7 @@ async def balance(interaction: discord.Interaction):
 
 @bot.tree.command(name="achievements", description="Display all possible achievements")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def achievements(interaction: discord.Interaction):
@@ -361,8 +361,8 @@ async def achievements(interaction: discord.Interaction):
     for achievement in achievements_list:
         achievement_data = achievements_list[achievement]
         embed.add_field(
-            name=f"{achievement_data["emoji"]} {achievement_data['name']}",
-            value=achievement_data["description"],
+            name=f"{achievement_data['emoji']} {achievement_data['name']}",
+            value=achievement_data['description'],
             inline=False,
         )
         embed.set_thumbnail(
@@ -376,7 +376,7 @@ async def achievements(interaction: discord.Interaction):
     name="leaderboard", description="Display the top users by balance and achievements"
 )
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def leaderboard(interaction: discord.Interaction):
@@ -387,9 +387,9 @@ async def leaderboard(interaction: discord.Interaction):
         __file__,
     )
     serverdata = get_serverdata()
-    user_data = serverdata[str(interaction.guild.id)]["users"]
+    user_data = serverdata[str(interaction.guild.id)]['users']
     sorted_users = sorted(
-        user_data.items(), key=lambda x: x[1]["balance"], reverse=True
+        user_data.items(), key=lambda x: x[1]['balance'], reverse=True
     )
     top_users = sorted_users[:10]
 
@@ -429,7 +429,7 @@ async def leaderboard(interaction: discord.Interaction):
     amount="The amount of money you want to send",
 )
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]['config']['bot_enabled']
     == "True"
 )
 async def send_money(
@@ -446,7 +446,7 @@ async def send_money(
     sender_data = check_user(interaction.user.id, interaction.guild_id)
     check_user(recipient.id, interaction.guild_id)
 
-    if sender_data["balance"] < amount:
+    if sender_data['balance'] < amount:
         await interaction.response.send_message(
             f"**{interaction.user.mention}**, you don't have enough money to send. Your current balance is {sender_data['balance']}$.",
             ephemeral=True,
@@ -454,7 +454,7 @@ async def send_money(
         return
 
     max_transaction = int(
-        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]["config"][
+        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]['config'][
             "max_transactions"
         ]
     )
@@ -525,8 +525,8 @@ async def subtract_balance_command(
 ):
     user_data = check_user(user.id, interaction.guild_id)
 
-    if user_data["balance"] < amount:
-        subtract_balance(user.id, interaction.guild_id, user_data["balance"])
+    if user_data['balance'] < amount:
+        subtract_balance(user.id, interaction.guild_id, user_data['balance'])
     else:
         subtract_balance(user.id, interaction.guild_id, amount)
     log(
@@ -571,7 +571,7 @@ async def edit_server_config(interaction: discord.Interaction):
     class ServerConfigModal(discord.ui.Modal, title="Edit Server Configuration"):
         def __init__(self):
             super().__init__()
-            for key, value in serverdata[guild_id]["config"].items():
+            for key, value in serverdata[guild_id]['config'].items():
                 self.add_item(
                     discord.ui.TextInput(
                         label=key,
@@ -582,7 +582,7 @@ async def edit_server_config(interaction: discord.Interaction):
 
         async def on_submit(self, interaction: discord.Interaction):
             for item in self.children:
-                serverdata[guild_id]["config"][item.label] = item.value
+                serverdata[guild_id]['config'][item.label] = item.value
 
             with open("config/serverdata.json", "w") as file:
                 json.dump(serverdata, file, indent=4)
@@ -642,4 +642,4 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-bot.run(os.environ["TOKEN"], log_handler=handler)
+bot.run(os.environ['TOKEN'], log_handler=handler)
