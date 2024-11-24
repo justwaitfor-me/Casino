@@ -634,14 +634,7 @@ async def ban_player(interaction, player: discord.Member):
 async def release_notes(ctx):
     with open(f"docs/{get_data()['version']}.txt", "r") as file:
         notes = file.read()
-
-    for guild in ctx.bot.guilds:
-        for channel in guild.text_channels:
-            await channel.send(f"**{guild.default_role} Release Notes:**\n{notes}")
-
-    await ctx.send("Release notes have been broadcasted to all active channels in all guilds.")
-
-
+    await ctx.send(f"**{ctx.guild.default_role} Release Notes:**\n{notes}")
 
 @bot.command()
 async def version(ctx):
