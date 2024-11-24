@@ -152,10 +152,6 @@ coverage/
 *.a
 *.lib
 
-# Jupyter Notebooks
-.ipynb_checkpoints/
-*.ipynb
-
 # Visual Studio Code
 .vscode/
 history/

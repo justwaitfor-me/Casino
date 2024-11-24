@@ -1,6 +1,7 @@
 {
-  "version": "v1.6",
+  "version": "v1.7",
   "footer_text": "Copyright 2024 justwaitfor_me. All rights reserved. | Gambling can lead to financial loss, addiction, and emotional distress!",
+  "developer": [838093888338133065],
   "commands": [
     ["`/help`", "Lists all available commands"],
     ["`/play`", "Play the casino games"],
@@ -13,7 +14,8 @@
     ["`/add_balance`", "Add money to a users account (ADMIN)"],
     ["`/remove_balance`", "Remove money from a users account (ADMIN)"],
     ["`/download_logs`", "Download the current logs to a text file (ADMIN)"],
-    ["`/edit_config`", "Edit configuration settings for the Server (ADMIN)"]
+    ["`/edit_config`", "Edit configuration settings for the Server (ADMIN)"],
+    ["`/ban_player`", "Ban a player from the playing (ADMIN)"]
   ],
   "casino_games": [
     {
@@ -107,7 +109,7 @@
       "description": "A simple game where players bet on whether to double their money or lose it all.",
       "author_img": "casino-chip-2.png",
       "color": "#7d00ff",
-      "win_chance": 0.44,
+      "win_chance": 0.35,
       "max_rounds": 5
     },
     "slot_machine": {
