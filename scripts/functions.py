@@ -54,7 +54,9 @@ def check_server(guild_id):
                 "bot_enabled": "True",
                 "max_transactions": 1000000,
                 "max_bet": 1000000,
+                "banned_players": [],
             },
+            "bank": 0,
             "users": {},
         }
 
@@ -105,6 +107,22 @@ def check_user(user_id, guild_id):
     return user_data
 
 
+def check_banned(interaction):
+    serverdata = get_serverdata()
+    guild_id = str(interaction.guild.id)
+    if guild_id not in serverdata:
+        return False
+
+    if 'banned_players' not in serverdata[guild_id]['config']:
+        serverdata[guild_id]['config']['banned_players'] = []
+
+    if serverdata["developer_mode"] and interaction.user.id not in get_data()["developer"]:
+        return False
+
+    banned_players = serverdata[guild_id]['config']['banned_players']
+    return interaction.user.id not in banned_players
+
+
 def subtract_balance(user_id, guild_id, amount):
     serverdata = get_serverdata()
     user_data = check_user(user_id, guild_id)
@@ -112,6 +130,7 @@ def subtract_balance(user_id, guild_id, amount):
     user_data['balance'] -= amount
 
     serverdata[str(guild_id)]['users'][str(user_id)] = user_data
+    serverdata[str(guild_id)]["bank"] += amount
     with open("config/serverdata.json", "w") as file:
         json.dump(serverdata, file, indent=4)
 
@@ -151,6 +170,7 @@ def add_balance(user_id, guild_id, amount):
 
     user_data['balance'] += amount
     serverdata[str(guild_id)]['users'][str(user_id)] = user_data
+    serverdata[str(guild_id)]["bank"] -= amount
     with open("config/serverdata.json", "w") as file:
         json.dump(serverdata, file, indent=4)
 

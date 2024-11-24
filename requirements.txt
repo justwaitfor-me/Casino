@@ -1,5 +1,2 @@
 discord
 dotenv
-discord_ext
-discord_ui
-datetime 

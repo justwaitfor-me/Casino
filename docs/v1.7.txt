@@ -1,0 +1,36 @@
+Release-Notizen: Version 1.7
+
+Abgeschlossene Funktionen/Änderungen:
+- Blackjack: Dealer-Karten werden nun nach dem Spielende angezeigt. (geschlossen)
+- Footer: Footer-Test implementiert mit Daten aus `data.json` und Name hinzugefügt. (geschlossen)
+- Versionskontrolle: Versionskontrolle hinzugefügt. (geschlossen)
+- Fehlerbehebungen:
+  - Mehrere Spieler können nun denselben /Play-Callback verwenden.
+  - Fehler bei Pferde Wetten RS behoben.
+  - Dezimalstellen im Slot Machine behoben.
+  - Blackjack: Fehler bei der Anzeige der einfachen Karte in der Hand des Spielers behoben.
+  - /send sendet nun nur einmal die angegebene Menge. (fixed)
+  - Doppelte-oder-Nichts-Chance wurde auf 0.35 reduziert. (fixed)
+  - Dealer zieht nicht mehr als 17 Karten. (fixed)
+  - Ass wird jetzt korrekt gewertet. (fixed)
+  - Server-Datendatei fehlt nicht mehr beim Git-Pull. (fixed)
+
+Geplante Funktionen/Änderungen:
+- Guess the Number: Spieler dürfen nicht weniger als 0 oder mehr als 10 raten. (offen)
+- Insta Replay: Funktion für ein Replay ohne den /Play-Befehl. (offen)
+- Item Shop: Entwicklung noch offen. (offen)
+- Aktien: Aktien-Funktion noch in Entwicklung. (offen)
+- Spiele:
+  - Pferderennen: Funktion noch in Entwicklung. (offen)
+  - Poker (Multiplayer): Funktion noch in Entwicklung. (offen)
+  - Glücksrad: Funktion noch in Entwicklung. (offen)
+
+Todo:
+- Insta Replay ohne /Play > Github Issues (offen)
+- Item Shop (offen)
+- Aktien (geschlossen)
+- Einzelne Spieler bannen > Github Issues (geschlossen)
+- mark_murmel265 als Mitwirkender (in Bot-Präsenz) markieren (geschlossen)
+- Gesamtergebnisse der Bank speichern (geschlossen)
+- Dev-Modus einführen, um nur Entwickler für Tests zu ermöglichen (geschlossen)
+- Broadcast-Release-Notes an alle Kanäle (geschlossen)

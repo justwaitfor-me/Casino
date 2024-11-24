@@ -24,8 +24,7 @@ Customizable Configuration: Server administrators can customize various aspects 
 
 ### Once the bot is running, you can interact with it using commands in Discord. Here are some example commands:
 
-`/play:` Play a slot machine game with a default bet of 100$.
-`/bet <amount>:` Place a bet on your current slot machine game.
+`/play: <bet>` Play a slot machine game with a default bet of 100$.
 `/balance:` View your current balance.
 `/leaderboard:` View the top 10 users by balance and achievements.
 `/info:` View your user information.
@@ -36,7 +35,7 @@ Customizable Configuration: Server administrators can customize various aspects 
 `/subtract_balance <user> <amount>:` Subtract balance from a user (administrator only).
 `/download_log:` Download the current log file (administrator only).
 `/edit_config:` Edit server configuration (administrator only).
-`/release_notes:` View the latest release notes (administrator only).
+`/ban_player:` Ban a player from the playing (ADMIN).
 
 ## Customization
 
