@@ -63,10 +63,10 @@ async def blackjack_callback(interaction, bet: int):
 
         embed.set_author(
             name="Blackjack",
-            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}?raw=true",
+            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
-            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif?raw=true"
+            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif"
         )
         embed.add_field(
             name=f"{interaction.user.name}'s Hand",
@@ -119,9 +119,9 @@ async def blackjack_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction.guild_id, bet)
+            subtract_balance(interaction.user.id, interaction, bet)
         elif tie:
             embed.add_field(
                 name="Result",
@@ -135,9 +135,9 @@ async def blackjack_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif"
             )
-            add_balance(interaction.user.id, interaction.guild_id, 2 * bet)
+            add_balance(interaction.user.id, interaction, 2 * bet)
 
             counts(interaction.user.id, interaction.guild_id, "count_winnings")
 
@@ -191,10 +191,10 @@ async def double_or_nothing_callback(interaction, bet: int):
         )
         embed.set_author(
             name="Slot Machine",
-            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}?raw=true",
+            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
-            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif?raw=true"
+            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif"
         )
 
         embed.add_field(name="Bet", value=f"{bet}$", inline=True)
@@ -207,7 +207,7 @@ async def double_or_nothing_callback(interaction, bet: int):
         embed.add_field(name="", value="", inline=False)
 
         embed.set_image(
-            url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif?raw=true"
+            url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif"
         )
 
         embed.set_footer(
@@ -250,9 +250,9 @@ async def double_or_nothing_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction.guild_id, bet)
+            subtract_balance(interaction.user.id, interaction, bet)
         else:
             embed.add_field(
                 name="Result",
@@ -260,9 +260,9 @@ async def double_or_nothing_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif"
             )
-            add_balance(interaction.user.id, interaction.guild_id, current_amount)
+            add_balance(interaction.user.id, interaction, current_amount)
 
             counts(interaction.user.id, interaction.guild_id, "count_winnings")
 
@@ -354,11 +354,11 @@ async def roulette_callback(interaction, bet: int):
         )
         embed.set_author(
             name="Roulette Table",
-            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}?raw=true",
+            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
 
         embed.set_thumbnail(
-            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif?raw=true"
+            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif"
         )
 
         embed.add_field(name="Bet", value=f"{bet}$", inline=True)
@@ -383,10 +383,10 @@ async def roulette_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif"
             )
 
-            add_balance(interaction.user.id, interaction.guild_id, current_amount)
+            add_balance(interaction.user.id, interaction, current_amount)
             counts(interaction.user.id, interaction.guild_id, "count_winnings")
         else:
             embed.add_field(
@@ -395,9 +395,9 @@ async def roulette_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction.guild_id, bet)
+            subtract_balance(interaction.user.id, interaction, bet)
 
         await interaction.response.edit_message(
             embed=embed, view=None, content=interaction.user.mention
@@ -434,10 +434,10 @@ async def guess_the_number_callback(interaction, bet: int):
         )
         embed.set_author(
             name="Guess The Number",
-            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}?raw=true",
+            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
-            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.png?raw=true"
+            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.png"
         )
         embed.add_field(name="Bet", value=f"{bet}$", inline=True)
         embed.add_field(name="Potential Winnings", value=f"{win_amount}$", inline=True)
@@ -457,9 +457,9 @@ async def guess_the_number_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif"
             )
-            add_balance(interaction.user.id, interaction.guild_id, win_amount)
+            add_balance(interaction.user.id, interaction, win_amount)
             counts(interaction.user.id, interaction.guild_id, "count_winnings")
         else:
             embed.add_field(
@@ -468,9 +468,9 @@ async def guess_the_number_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/lose-{random.randint(1, 6)}.gif?raw=true"
+                url=f"{str(os.environ['VIDEOS'])}/lose-{random.randint(1, 6)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction.guild_id, bet)
+            subtract_balance(interaction.user.id, interaction, bet)
 
         await interaction.response.edit_message(embed=embed, view=None)
 
@@ -578,10 +578,10 @@ async def slot_machine_callback(interaction, bet: int):
         )
         embed.set_author(
             name="Slot Machine",
-            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}?raw=true",
+            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
-            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.png?raw=true"
+            url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.png"
         )
 
         embed.add_field(name="Bet", value=f"{bet}$", inline=True)
@@ -749,10 +749,10 @@ async def slot_machine_callback(interaction, bet: int):
                     inline=False,
                 )
                 embed.set_image(
-                    url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif?raw=true"
+                    url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif"
                 )
                 add_balance(
-                    self.interactionx.user.id, self.interactionx.guild_id, win
+                    self.interactionx.user.id, self.interactionx, win
                 )
             else:
                 embed.add_field(
@@ -761,10 +761,10 @@ async def slot_machine_callback(interaction, bet: int):
                     inline=False,
                 )
                 embed.set_image(
-                    url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1,6)}.gif?raw=true"
+                    url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1,6)}.gif"
                 )
                 subtract_balance(
-                    self.interactionx.user.id, self.interactionx.guild_id, bet
+                    self.interactionx.user.id, self.interactionx, bet
                 )
 
             await self.interactionx.followup.edit_message(

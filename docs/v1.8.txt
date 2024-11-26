@@ -1,0 +1,21 @@
+**Release-Notizen: Version 1.8**
+
+Abgeschlossene Funktionen/Änderungen:
+- Server-Geld in der Leaderboard-Anzeige angezeigt. (geschlossen)
+- Nachrichten für aktiven Dev-Modus oder gesperrten Benutzern hinzugefügt. (geschlossen)
+- Release-Notes werden nun an alle Server gesendet. (geschlossen)
+- Broadcast-Befehl für Nachrichten hinzugefügt. (geschlossen)
+- Mehrere Protokolle und Server-Informationen hinzugefügt. (geschlossen)
+- Fehlerbehebungen:
+  - Neue Schlüssel in serverdata.json werden den alten hinzugefügt. (fixed)
+  - Bann-Funktion funktioniert jetzt auch, wenn der Guild nicht initialisiert ist. (fixed)
+  - Blackjack gibt Geld bei Unentschieden aus, obwohl es nicht abgezogen wird. (fixed)
+  - /edit_config löst einen Fehler aus. (fixed)
+  - /toggle_dev_mode ist nur für Admins verfügbar. (fixed)
+
+Geplante Funktionen/Änderungen:
+- Website: Leaderboard und weitere Informationen (Einladungslink, Ping, aktive Benutzer, Bankgeld) anzeigen. (offen)
+- Spiele:
+  - Pferderennen: Funktion noch in Entwicklung. (offen)
+  - Poker (Multiplayer): Funktion noch in Entwicklung. (offen)
+  - Glücksrad: Funktion noch in Entwicklung. (offen)
