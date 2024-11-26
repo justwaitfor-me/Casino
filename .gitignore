@@ -120,8 +120,6 @@ docker-compose.yml
 
 # Logs
 *.log
-logs/
-log/
 
 # Miscellaneous
 *.bak

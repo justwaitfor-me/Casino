@@ -457,7 +457,7 @@ async def leaderboard(interaction: discord.Interaction):
 
     embed = discord.Embed(
         title="Leaderboard",
-        description=f"Top 10 users by balance and achievements\n**The Banks money is: *{serverdata[str(interaction.guild.id)]["bank"]}$* **",
+        description=f"Top 10 users by balance and achievements\n**The Banks money is: *{serverdata[str(interaction.guild.id)]['bank']}$* **",
         color=discord.Color.gold(),
         timestamp=datetime.now(),
     )
