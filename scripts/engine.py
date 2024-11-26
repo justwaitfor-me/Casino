@@ -119,7 +119,7 @@ async def blackjack_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif"
+                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
             )
             subtract_balance(interaction.user.id, interaction, bet)
         elif tie:
@@ -128,6 +128,9 @@ async def blackjack_callback(interaction, bet: int):
                 value=f"**{interaction.user.mention} It's a tie! Your bet of {bet}$ is returned.**",
                 inline=False,
             )
+            embed.set_image(
+                url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif"
+            )
         else:
             embed.add_field(
                 name="Result",
@@ -135,7 +138,7 @@ async def blackjack_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif"
+                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 14)}.gif"
             )
             add_balance(interaction.user.id, interaction, 2 * bet)
 
@@ -207,7 +210,7 @@ async def double_or_nothing_callback(interaction, bet: int):
         embed.add_field(name="", value="", inline=False)
 
         embed.set_image(
-            url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif"
+            url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 14)}.gif"
         )
 
         embed.set_footer(
@@ -250,7 +253,7 @@ async def double_or_nothing_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif"
+                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
             )
             subtract_balance(interaction.user.id, interaction, bet)
         else:
@@ -395,7 +398,7 @@ async def roulette_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 6)}.gif"
+                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
             )
             subtract_balance(interaction.user.id, interaction, bet)
 
@@ -457,7 +460,7 @@ async def guess_the_number_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 5)}.gif"
+                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 14)}.gif"
             )
             add_balance(interaction.user.id, interaction, win_amount)
             counts(interaction.user.id, interaction.guild_id, "count_winnings")
@@ -468,7 +471,7 @@ async def guess_the_number_callback(interaction, bet: int):
                 inline=False,
             )
             embed.set_image(
-                url=f"{str(os.environ['VIDEOS'])}/lose-{random.randint(1, 6)}.gif"
+                url=f"{str(os.environ['VIDEOS'])}/lose-{random.randint(1, 11)}.gif"
             )
             subtract_balance(interaction.user.id, interaction, bet)
 
@@ -749,7 +752,7 @@ async def slot_machine_callback(interaction, bet: int):
                     inline=False,
                 )
                 embed.set_image(
-                    url=f"{str(os.environ['VIDEOS'])}/funny-{random.randint(1, 2)}.gif"
+                    url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 14)}.gif"
                 )
                 add_balance(
                     self.interactionx.user.id, self.interactionx, win
@@ -761,7 +764,7 @@ async def slot_machine_callback(interaction, bet: int):
                     inline=False,
                 )
                 embed.set_image(
-                    url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1,6)}.gif"
+                    url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1,11)}.gif"
                 )
                 subtract_balance(
                     self.interactionx.user.id, self.interactionx, bet
