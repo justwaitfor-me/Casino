@@ -6,7 +6,14 @@ import os
 import random
 import asyncio
 
-from scripts.functions import get_data, counts, subtract_balance, add_balance, user, get_footer
+from scripts.functions import (
+    get_data,
+    counts,
+    subtract_balance,
+    add_balance,
+    user,
+    get_footer,
+)
 
 
 async def blackjack_callback(interaction, bet: int):
@@ -62,7 +69,7 @@ async def blackjack_callback(interaction, bet: int):
         )
 
         embed.set_author(
-            name="Blackjack",
+            name=data["titel"],
             icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
@@ -193,7 +200,7 @@ async def double_or_nothing_callback(interaction, bet: int):
             timestamp=datetime.now(),
         )
         embed.set_author(
-            name="Slot Machine",
+            name=data["titel"],
             icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
@@ -213,9 +220,7 @@ async def double_or_nothing_callback(interaction, bet: int):
             url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 14)}.gif"
         )
 
-        embed.set_footer(
-            text=get_footer()
-        )
+        embed.set_footer(text=get_footer())
         return embed
 
     async def double_button_callback(interaction):
@@ -356,7 +361,7 @@ async def roulette_callback(interaction, bet: int):
             timestamp=datetime.now(),
         )
         embed.set_author(
-            name="Roulette Table",
+            name=data["titel"],
             icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
 
@@ -370,9 +375,7 @@ async def roulette_callback(interaction, bet: int):
         )
         embed.add_field(name="Current Amount", value=f"{current_amount}$", inline=False)
 
-        embed.set_footer(
-            text=get_footer()
-        )
+        embed.set_footer(text=get_footer())
         return embed
 
     async def end_game(interaction, roll_result, won: bool):
@@ -436,7 +439,7 @@ async def guess_the_number_callback(interaction, bet: int):
             timestamp=datetime.now(),
         )
         embed.set_author(
-            name="Guess The Number",
+            name=data["titel"],
             icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
@@ -580,7 +583,7 @@ async def slot_machine_callback(interaction, bet: int):
             timestamp=datetime.now(),
         )
         embed.set_author(
-            name="Slot Machine",
+            name=data["titel"],
             icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
         embed.set_thumbnail(
@@ -731,7 +734,7 @@ async def slot_machine_callback(interaction, bet: int):
                 # Calculate the win for this last sequence
                 sequence_win = bet * total_multiplier
                 win += sequence_win
-                
+
             win = int(win)
 
             # Gewinnanzeige
@@ -754,9 +757,7 @@ async def slot_machine_callback(interaction, bet: int):
                 embed.set_image(
                     url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 14)}.gif"
                 )
-                add_balance(
-                    self.interactionx.user.id, self.interactionx, win
-                )
+                add_balance(self.interactionx.user.id, self.interactionx, win)
             else:
                 embed.add_field(
                     name="Result",
@@ -766,9 +767,7 @@ async def slot_machine_callback(interaction, bet: int):
                 embed.set_image(
                     url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1,11)}.gif"
                 )
-                subtract_balance(
-                    self.interactionx.user.id, self.interactionx, bet
-                )
+                subtract_balance(self.interactionx.user.id, self.interactionx, bet)
 
             await self.interactionx.followup.edit_message(
                 self.interactionx.message.id,
@@ -784,6 +783,136 @@ async def slot_machine_callback(interaction, bet: int):
     await interaction.response.edit_message(
         embed=embed, view=view, content=interaction.user.mention
     )
+
+
+async def horce_racing_callback(interaction, bet: int):
+    game = "horce_racing"
+    counts(interaction.user.id, interaction.guild_id, "count_gambles")
+
+    horse_names = data["games"][game]["horse_names"]
+    stadiums = data["games"][game]["stadiums"]
+    finish_line = data["games"][game]["finish_lane"]
+    win_multiplier = data["games"][game]["winning_multiplier"]
+
+    horses = [f"🏇 {name}" for name in random.sample(horse_names, 4)]  # Random names
+    stadium = random.choice(stadiums) # Stadium
+    progress = [0] * len(horses)
+    selected_horse = None
+    winning_horse = None
+
+    async def start_embed():
+        embed = discord.Embed(
+            title=data["games"][game]["friendly_name"],
+            description=data["games"][game]["description"],
+            color=discord.Color.from_str(data["games"][game]["color"]),
+            timestamp=datetime.now(),
+        )
+        embed.set_author(
+            name=data["titel"],
+            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
+        )
+        embed.add_field(name="Bet", value=f"{bet}$", inline=True)
+        embed.add_field(name="Multiplier", value=f"{win_multiplier}x", inline=True)
+        embed.add_field(
+            name="Choose a Horse",
+            value="\n".join([f"{i + 1}. {horse}" for i, horse in enumerate(horses)]),
+            inline=False,
+        )
+        embed.set_footer(text=get_footer())
+        return embed
+
+    async def race_animation(interaction):
+        nonlocal progress, winning_horse
+
+        race_message = None
+        while max(progress) < finish_line:
+            progress = [p + random.randint(0, 2) for p in progress]
+
+            selected_horse_progress = progress[horses.index(selected_horse)]
+            selected_horse_percentage = (selected_horse_progress / finish_line) * 100
+            race_text = "\n".join(
+                f"{'>' if horses[i] == selected_horse else ' '} {horses[i]} {'━' * progress[i]}{'🏁' if progress[i] >= finish_line else ''}"
+                for i in range(len(horses))
+            )
+
+            content = f"{interaction.user.mention}\n## **{stadium}**\n```md\n{race_text}\n```\n{selected_horse}: *{selected_horse_percentage:.1f}%*\n"
+
+            if race_message:
+                await race_message.edit(content=content)
+            else:
+                race_message = await interaction.followup.edit_message(
+                    interaction.message.id, content=content, embed=None, view=None
+                )
+
+            await asyncio.sleep(1)
+
+    async def end_game(interaction):
+        nonlocal selected_horse
+        win_amount = bet * win_multiplier if selected_horse == winning_horse else 0
+
+        embed = discord.Embed(
+            title=data["games"][game]["friendly_name"],
+            color=discord.Color.from_str(data["games"][game]["color"]),
+            timestamp=datetime.now(),
+        )
+        embed.set_author(
+            name=data["titel"],
+            icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
+        )
+        embed.set_footer(text=get_footer())
+
+        if win_amount > 0:
+            counts(interaction.user.id, interaction.guild_id, "count_winnings")
+            embed.add_field(
+                name="Result",
+                value=f"**{interaction.user.mention}, {winning_horse} won the race! You won {win_amount}$!**",
+                inline=False,
+            )
+            embed.set_image(
+                url=f"{str(os.environ['VIDEOS'])}/win-{random.randint(1, 14)}.gif"
+            )
+            add_balance(interaction.user.id, interaction, win_amount)
+        else:
+            embed.add_field(
+                name="Result",
+                value=f"**{interaction.user.mention}, {winning_horse} won the race, but your horse {selected_horse} lost. You lost {bet}$!**",
+                inline=False,
+            )
+            embed.set_image(
+                url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
+            )
+            subtract_balance(interaction.user.id, interaction, bet)
+
+        await interaction.followup.edit_message(
+            interaction.message.id,
+            embed=embed,
+            view=None,
+            content=interaction.user.mention,
+        )
+
+    async def select_horse_callback(interaction, horse_index: int):
+        nonlocal selected_horse
+        selected_horse = horses[horse_index]
+        await interaction.response.send_message(
+            f"{interaction.user.mention}, you selected **{selected_horse.replace("  ", "")}**! The race is starting! 🏇💨",
+            ephemeral=True,
+        )
+        await race_animation(interaction)
+        await end_game(interaction)
+
+    class HorseSelectionView(View):
+        def __init__(self):
+            super().__init__()
+            for i, horse in enumerate(horses):
+                button = Button(label=horse, style=discord.ButtonStyle.grey)
+                button.callback = lambda interaction, i=i: select_horse_callback(
+                    interaction, i
+                )
+                self.add_item(button)
+
+    embed = await start_embed()
+    view = HorseSelectionView()
+    await interaction.response.edit_message(embed=embed, view=view)
 
 
 data = get_data()

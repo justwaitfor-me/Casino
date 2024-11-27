@@ -9,6 +9,7 @@ import random
 import json
 import dotenv
 import logging
+import asyncio
 
 from scripts.functions import (
     get_data,
@@ -28,6 +29,7 @@ from scripts.engine import (
     double_or_nothing_callback,
     roulette_callback,
     slot_machine_callback,
+    horce_racing_callback,
 )
 
 from scripts.achievements import get_achievement
@@ -95,7 +97,7 @@ async def list(interaction: discord.Interaction):
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
+        name=get_data()["titel"],
         icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(
@@ -129,9 +131,7 @@ async def play(interaction: discord.Interaction, bet: int):
     balance = user_data["balance"]
 
     max_bet = int(
-        get_serverdata(interaction)[str(interaction.guild.id)]["config"][
-            "max_bet"
-        ]
+        get_serverdata(interaction)[str(interaction.guild.id)]["config"]["max_bet"]
     )
 
     if bet > max_bet:
@@ -224,9 +224,7 @@ async def play(interaction: discord.Interaction, bet: int):
         elif selected_game == "slot_machine":
             await slot_machine_callback(interaction, bet)
         elif selected_game == "pferde_wettem":
-            await interaction.response.send_message(
-                "Pferde Wettem is currently unavailable.", ephemeral=True
-            )
+            await horce_racing_callback(interaction, bet)
 
     # Attach the callback to the Select menu
     games_menu.callback = select_callback
@@ -327,7 +325,7 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
             ephemeral=True,
         )
 
-    user_data = check_user(interaction, target = target_user.id)
+    user_data = check_user(interaction, target=target_user.id)
     balance = user_data["balance"]
 
     last_daily = user_data.get("last_daily", "Never")
@@ -343,7 +341,7 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
+        name=get_data()["titel"],
         icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(url=target_user.avatar.url)
@@ -382,7 +380,7 @@ async def balance(interaction: discord.Interaction):
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
+        name=get_data()["titel"],
         icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(url=interaction.user.avatar.url)
@@ -464,7 +462,7 @@ async def leaderboard(interaction: discord.Interaction):
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
+        name=get_data()["titel"],
         icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(
@@ -682,6 +680,82 @@ async def ban_player(interaction, player: discord.Member):
         json.dump(serverdata, file, indent=4)
 
 
+@bot.tree.command(name="luckywheel", description="Spin the wheel and try your luck")
+@app_commands.check(
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
+    == "True"
+)
+async def luckywheel(interaction: discord.Interaction):
+    log(
+        interaction.user.id, interaction.user.name, "/luckywheel command used", __file__
+    )
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction)
+    last_wheel = user_data.get("last_wheel")
+    current_date = datetime.now().date()
+
+    if (
+        last_wheel != "Never"
+        and datetime.fromisoformat(last_wheel).date() == current_date
+    ):
+        await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            "You've already spinned the wheel today. Come back tomorrow!",
+            ephemeral=True,
+        )
+    else:
+        # Define the sections of the wheel
+        lucky_options = get_data()["lucky_options"]
+
+        # Extract options and probabilities
+        options = [item[0] for item in lucky_options]  # Descriptions
+        probabilities = [item[1] for item in lucky_options]  # Probabilities
+
+
+        # Simulate the spinning animation
+        embed = discord.Embed(
+            title="🎡 Spinning the Lucky Wheel!",
+            description="Get ready to see where it lands!",
+            color=discord.Color.blue(),
+        )
+        embed.set_author(
+            name=get_data()["titel"],
+            icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
+        )
+
+        await interaction.response.send_message(
+            embed=embed, content=interaction.user.mention
+        )
+        message = await interaction.original_response()  # Get the sent message for editing
+
+        for i in range(15):  # Spin 15 times for the animation
+            current_option = random.choices(options, weights=probabilities, k=1)[0]
+            embed.description = f"**Spinning...**\n{current_option[1]}"
+            await message.edit(embed=embed, content=interaction.user.mention)
+            await asyncio.sleep(0.3)  # Delay between spins
+
+        # Final result
+        final_result = random.choices(options, weights=probabilities, k=1)[0]
+
+        add_balance(interaction.user.id, interaction, final_result[0])
+        serverdata = get_serverdata()
+        userdata = serverdata[str(interaction.guild.id)]["users"]
+        userdata[str(interaction.user.id)]["last_wheel"] = current_date.isoformat()
+
+        serverdata[str(interaction.guild.id)]["users"] = userdata
+        with open("config/serverdata.json", "w") as file:
+            json.dump(serverdata, file, indent=4)
+
+        embed.description = f"🎉 **Congratulations! You won:** {final_result[1]} 🎉"
+        embed.color = discord.Color.green()
+        await message.edit(embed=embed, content=interaction.user.mention)
+
+
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def release_notes(ctx, send_here: bool = False):
@@ -741,7 +815,6 @@ async def version(ctx):
 
 @bot.command()
 @commands.has_permissions(administrator=True)
-
 async def toggle_dev_mode(ctx):
     serverdata = get_serverdata()
     guild_id = str(ctx.guild.id)
@@ -805,4 +878,4 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-bot.run(os.environ["TOKEN"])# log_handler=handler)
+bot.run(os.environ["TOKEN"])  # , log_handler=handler)

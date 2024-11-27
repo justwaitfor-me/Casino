@@ -89,7 +89,7 @@ def check_server(interaction):
     return serverdata[str(guild_id)]
 
 
-def check_user(interaction, target = None):
+def check_user(interaction, target=None):
     serverdata = get_serverdata()
     guild_id = interaction.guild.id
     user_id = target or interaction.user.id
@@ -102,31 +102,45 @@ def check_user(interaction, target = None):
     if "users" not in guild_data:
         guild_data["users"] = {}
 
-    if str(user_id) not in guild_data["users"]:
-        guild_data["users"][str(user_id)] = {
-            "balance": 1000,
-            "last_daily": "Never",
-            "inventory": [],
-            "last_gamble": None,
-            "counts": {
-                k: 0
-                for k in [
-                    "count_gambles",
-                    "count_winnings",
-                    "count_leaves",
-                    "count_doubles",
-                    "count_dayly",
-                    "count_red",
-                    "count_green",
-                    "count_black",
-                    "count_top_leaderboard",
-                ]
-            },
-        }
+    default_user_data = {
+        "balance": 1000,
+        "last_daily": "Never",
+        "last_wheel": "Never",
+        "inventory": [],
+        "last_gamble": None,
+        "counts": {
+            k: 0
+            for k in [
+                "count_gambles",
+                "count_winnings",
+                "count_leaves",
+                "count_doubles",
+                "count_dayly",
+                "count_red",
+                "count_green",
+                "count_black",
+                "count_top_leaderboard",
+            ]
+        },
+    }
 
-        serverdata[str(guild_id)] = guild_data
-        with open("config/serverdata.json", "w") as file:
-            json.dump(serverdata, file, indent=4)
+    # Add missing keys for user
+    if str(user_id) not in guild_data["users"]:
+        guild_data["users"][str(user_id)] = default_user_data
+    else:
+        user_data = guild_data["users"][str(user_id)]
+        for key, value in default_user_data.items():
+            if key not in user_data:
+                user_data[key] = value
+            elif isinstance(value, dict):
+                # Handle nested dictionaries
+                for sub_key, sub_value in value.items():
+                    if sub_key not in user_data[key]:
+                        user_data[key][sub_key] = sub_value
+
+    serverdata[str(guild_id)] = guild_data
+    with open("config/serverdata.json", "w") as file:
+        json.dump(serverdata, file, indent=4)
 
     user_data = guild_data["users"][str(user_id)]
     achievement_system = AchievementSystem(user_data)

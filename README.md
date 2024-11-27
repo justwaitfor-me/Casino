@@ -29,6 +29,7 @@ Customizable Configuration: Server administrators can customize various aspects 
 `/leaderboard:` View the top 7 users by balance and achievements.
 `/info:` View your user information.
 `/daily:` Claim your daily reward.
+`/luckywheel:` Claim your lucky wheel reward.
 `/achievements:` View all possible achievements.
 `/send <user> <amount>:` Send money to another user.
 `/add_balance <user> <amount>:` Add balance to a user (administrator only).
