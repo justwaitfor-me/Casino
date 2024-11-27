@@ -89,10 +89,10 @@ def check_server(interaction):
     return serverdata[str(guild_id)]
 
 
-def check_user(interaction):
+def check_user(interaction, target = None):
     serverdata = get_serverdata()
     guild_id = interaction.guild.id
-    user_id = interaction.user.id
+    user_id = target or interaction.user.id
 
     if str(guild_id) not in serverdata:
         check_server(interaction)
@@ -168,8 +168,8 @@ def check_banned(interaction):
 
 def subtract_balance(user_id, interaction, amount):
     serverdata = get_serverdata()
-    user_data = check_user(interaction)
     guild_id = interaction.guild.id
+    user_data = check_user(interaction, target=user_id)
 
     user_data["balance"] -= amount
 
@@ -182,10 +182,10 @@ def subtract_balance(user_id, interaction, amount):
 def add_balance(user_id, interaction, amount):
     serverdata = get_serverdata()
     guild_id = interaction.guild.id
-
-    user_data = check_user(interaction)
+    user_data = check_user(interaction, target=user_id)
 
     user_data["balance"] += amount
+
     serverdata[str(guild_id)]["users"][str(user_id)] = user_data
     serverdata[str(guild_id)]["bank"] -= amount
     with open("config/serverdata.json", "w") as file:

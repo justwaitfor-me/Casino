@@ -26,7 +26,7 @@ Customizable Configuration: Server administrators can customize various aspects 
 
 `/play: <bet>` Play a slot machine game with a default bet of 100$.
 `/balance:` View your current balance.
-`/leaderboard:` View the top 10 users by balance and achievements.
+`/leaderboard:` View the top 7 users by balance and achievements.
 `/info:` View your user information.
 `/daily:` Claim your daily reward.
 `/achievements:` View all possible achievements.

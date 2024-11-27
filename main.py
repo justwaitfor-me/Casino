@@ -21,6 +21,7 @@ from scripts.functions import (
     log,
     check_banned,
 )
+
 from scripts.engine import (
     blackjack_callback,
     guess_the_number_callback,
@@ -28,6 +29,7 @@ from scripts.engine import (
     roulette_callback,
     slot_machine_callback,
 )
+
 from scripts.achievements import get_achievement
 
 intents = discord.Intents.default()
@@ -72,7 +74,7 @@ async def on_ready():
 
 @bot.tree.command(name="help", description="Lists all available commands")
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def list(interaction: discord.Interaction):
@@ -106,7 +108,7 @@ async def list(interaction: discord.Interaction):
 @bot.tree.command(name="play", description="Play the casino games")
 @app_commands.describe(bet="The amount you want to bet")
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def play(interaction: discord.Interaction, bet: int):
@@ -254,7 +256,7 @@ async def play(interaction: discord.Interaction, bet: int):
 
 @bot.tree.command(name="daily", description="Claim your daily reward")
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def daily(interaction: discord.Interaction):
@@ -307,7 +309,7 @@ async def daily(interaction: discord.Interaction):
 @bot.tree.command(name="info", description="Display user information")
 @app_commands.describe(user="The user to display information for (optional)")
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def userinfo(interaction: discord.Interaction, user: discord.Member = None):  # noqa: F811
@@ -325,7 +327,7 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
             ephemeral=True,
         )
 
-    user_data = check_user(interaction)
+    user_data = check_user(interaction, target = target_user.id)
     balance = user_data["balance"]
 
     last_daily = user_data.get("last_daily", "Never")
@@ -358,7 +360,7 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
 
 @bot.tree.command(name="balance", description="Display your current balance∞")
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def balance(interaction: discord.Interaction):
@@ -390,7 +392,7 @@ async def balance(interaction: discord.Interaction):
 
 @bot.tree.command(name="achievements", description="Display all possible achievements")
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def achievements(interaction: discord.Interaction):
@@ -431,7 +433,7 @@ async def achievements(interaction: discord.Interaction):
     name="leaderboard", description="Display the top users by balance and achievements"
 )
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def leaderboard(interaction: discord.Interaction):
@@ -453,7 +455,7 @@ async def leaderboard(interaction: discord.Interaction):
     sorted_users = sorted(
         user_data.items(), key=lambda x: x[1]["balance"], reverse=True
     )
-    top_users = sorted_users[:10]
+    top_users = sorted_users[:7]
 
     embed = discord.Embed(
         title="Leaderboard",
@@ -471,7 +473,7 @@ async def leaderboard(interaction: discord.Interaction):
 
     for index, (user_id, user_info) in enumerate(top_users, start=1):
         user = await bot.fetch_user(int(user_id))  # noqa: F811
-        user_data = check_user(interaction)
+        user_data = check_user(interaction, target=user.id)
 
         inventory_raw = user_data.get("inventory", [])
         inventory = get_achievement(inventory_raw)
@@ -491,7 +493,7 @@ async def leaderboard(interaction: discord.Interaction):
     amount="The amount of money you want to send",
 )
 @app_commands.check(
-    lambda i: get_serverdata(i)[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def send_money(
@@ -513,7 +515,6 @@ async def send_money(
         )
 
     sender_data = check_user(interaction)
-    check_user(interaction)
 
     if sender_data["balance"] < amount:
         await interaction.response.send_message(
@@ -527,6 +528,7 @@ async def send_money(
             "max_transactions"
         ]
     )
+
     if amount > max_transaction:
         await interaction.response.send_message(
             f"**{interaction.user.mention}**, the maximum transaction amount is {max_transaction}$.",
@@ -556,7 +558,7 @@ async def add_balance_command(
     user: discord.Member,  # noqa: F811
     amount: app_commands.Range[int, 1, 10000000000000],
 ):
-    user_data = check_user(interaction)
+    user_data = check_user(interaction, target=user.id)
 
     add_balance(user.id, interaction, amount)
     log(
@@ -565,7 +567,7 @@ async def add_balance_command(
         f"Added {amount}$ to {user.name}'s balance",
         __file__,
     )
-    user_data = check_user(interaction)
+
     await interaction.response.send_message(
         f"Added {amount}$ to {user.mention}'s balance. New balance: {user_data['balance']}$",
         ephemeral=True,
@@ -579,7 +581,7 @@ async def subtract_balance_command(
     user: discord.Member,  # noqa: F811
     amount: app_commands.Range[int, 1, 10000000000000],
 ):
-    user_data = check_user(interaction)
+    user_data = check_user(interaction, target=user.id)
 
     if user_data["balance"] < amount:
         subtract_balance(user.id, interaction, user_data["balance"])
@@ -591,7 +593,7 @@ async def subtract_balance_command(
         f"Subtracted {amount}$ from {user.name}'s balance",
         __file__,
     )
-    user_data = check_user(interaction)
+
     await interaction.response.send_message(
         f"Successfully subtracted {amount}$ from {user.mention}'s balance. New balance: {user_data['balance']}$",
         ephemeral=True,

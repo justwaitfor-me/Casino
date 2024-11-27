@@ -8,7 +8,7 @@
     ["`/daily`", "Claim your daily reward"],
     ["`/info`", "Display user information"],
     ["`/achievements`", "Display all possible achievements"],
-    ["`/leaderboard`", "Display the top 10 players"],
+    ["`/leaderboard`", "Display the top 7 players"],
     ["`/send`", "Send money to another user"],
     ["`/balance`", "Display the current balance of a user"],
     ["`/add_balance`", "Add money to a users account (ADMIN)"],
