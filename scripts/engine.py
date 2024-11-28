@@ -894,7 +894,7 @@ async def horce_racing_callback(interaction, bet: int):
         nonlocal selected_horse
         selected_horse = horses[horse_index]
         await interaction.response.send_message(
-            f"{interaction.user.mention}, you selected **{selected_horse.replace("  ", "")}**! The race is starting! 🏇💨",
+            f"{interaction.user.mention}, you selected **{selected_horse.replace('  ', '')}**! The race is starting! 🏇💨",
             ephemeral=True,
         )
         await race_animation(interaction)
