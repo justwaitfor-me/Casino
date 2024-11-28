@@ -194,7 +194,7 @@ async def play(interaction: discord.Interaction, bet: int):
             ),
             discord.SelectOption(
                 label="Pferde Wetten",
-                description="Currently unavailable",
+                description="Bet on a Horse",
                 emoji="<:casinochip6:1307379735147577394>",
                 value="pferde_wettem",
                 default=False,  # You can set this as selected initially if needed
