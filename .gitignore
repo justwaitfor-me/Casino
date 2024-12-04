@@ -1,0 +1,165 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+*.egg-info/
+*.egg
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+out/
+*.iml
+*.gradle
+/.idea/
+
+# C/C++
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dSYM/
+*.out
+*.app
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+vendor/
+log/
+tmp/
+*.rbc
+
+# Go
+bin/
+*.exe
+*.out
+
+# PHP
+vendor/
+composer.lock
+*.log
+
+# .NET
+bin/
+obj/
+*.suo
+*.user
+*.userprefs
+*.sln.docstates
+.vscode/
+
+# Visual Studio
+.vs/
+*.sln.ide
+*.sln.cache
+*.ncb
+*.aps
+*.plg
+*.obj
+*.exe
+
+# Android
+*.iml
+.gradle/
+local.properties
+.idea/
+build/
+captures/
+.externalNativeBuild/
+*.apk
+*.ap_
+
+# iOS
+DerivedData/
+*.xcworkspace/
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcuserdatad/
+*.xcuserstate
+*.swp
+*.swm
+
+# Docker
+*.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Configuration files
+*.config
+*.settings
+*.env
+*.local
+
+# Logs
+*.log
+logs/
+log/
+
+# Miscellaneous
+*.bak
+*.tmp
+*.temp
+*.orig
+*.swp
+*.swo
+*.DS_Store
+*.vscode/
+*.idea/
+*.sublime-project
+*.sublime-workspace
+*.sublime-settings
+
+# Coverage reports
+coverage/
+*.lcov
+*.gcda
+*.gcno
+
+# Compiled code
+*.class
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.lib
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Visual Studio Code
+.vscode/
+history/
+
+# Web
+dist/
+build/
+*.lock
+package-lock.json
+yarn.lock
