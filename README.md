@@ -24,37 +24,33 @@ Customizable Configuration: Server administrators can customize various aspects 
 
 ### Once the bot is running, you can interact with it using commands in Discord. Here are some example commands:
 
-`/play: <bet>` Play a slot machine game with a default bet of 100$.
-`/balance:` View your current balance.
-`/leaderboard:` View the top 7 users by balance and achievements.
-`/info:` View your user information.
-`/daily:` Claim your daily reward.
-`/luckywheel:` Claim your lucky wheel reward.
-`/achievements:` View all possible achievements.
-`/send <user> <amount>:` Send money to another user.
-`/add_balance <user> <amount>:` Add balance to a user (administrator only).
-`/subtract_balance <user> <amount>:` Subtract balance from a user (administrator only).
-`/download_log:` Download the current log file (administrator only).
-`/edit_config:` Edit server configuration (administrator only).
-`/ban_player:` Ban a player from the playing (ADMIN).
+| `/play: <bet>` | Play a slot machine game with a default bet of 100$. |
+| `/balance:` | View your current balance. |
+| `/leaderboard:` | View the top 7 users by balance and achievements. |
+| `/info:` | View your user information. |
+| `/daily:` | Claim your daily reward. |
+| `/luckywheel:` | Claim your lucky wheel reward. |
+| `/achievements:` | View all possible achievements. |
+| `/send <user> <amount>:` | Send money to another user. |
+| `/add_balance <user> <amount>:` | Add balance to a user (administrator only). |
+| `/subtract_balance <user> <amount>:` | Subtract balance from a user (administrator only). |
+| `/download_log:` | Download the current log file (administrator only). |
+| `/download_serverdata:` | Download the current serverdata file (administrator only). |
+| `/list_servers:` | Lets you select a server to list the data (administrator only). |
+| `/edit_config:` | Edit server configuration (administrator only). |
+| `/ban_player:` | Ban a player from the playing (ADMIN). |
 
 ## Customization
 
 ### You can customize various aspects of the bot by modifying the config.py file. Here are some configuration options:
 
-> TOKEN: Your Discord bot token.
-
-> IMAGES: The URL of the directory containing the images used in the bot
-
-> MAX_BET: The maximum amount a user can bet on a slot machine game.
-
-> DAILY_REWARD: The amount of money awarded to users for claiming their daily reward.
-
-> MAX_TRANSACTIONS: The maximum amount of money a user can send or receive in a single transaction.
-
-> SLOT_MACHINE_PAYOUTS: The payouts for each slot machine reel combination.
-
-> ACHIEVEMENTS: The list of achievements that users can earn.
+- TOKEN: Your Discord bot token.
+- IMAGES: The URL of the directory containing the images used in the bot
+- MAX_BET: The maximum amount a user can bet on a slot machine game.
+- DAILY_REWARD: The amount of money awarded to users for claiming their daily reward.
+- MAX_TRANSACTIONS: The maximum amount of money a user can send or receive in a single transaction.
+- SLOT_MACHINE_PAYOUTS: The payouts for each slot machine reel combination.
+- ACHIEVEMENTS: The list of achievements that users can earn.
 
 ## Contributing
 
