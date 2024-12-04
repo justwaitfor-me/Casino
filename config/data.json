@@ -3,6 +3,7 @@
   "titel": "Slot Machine",
   "footer_text": "Copyright 2024 justwaitfor_me. All rights reserved. | Gambling can lead to financial loss, addiction, and emotional distress!",
   "developer": [838093888338133065],
+  "max_balance": 999999999999999,
   "commands": [
     ["`/help`", "Lists all available commands"],
     ["`/play`", "Play the casino games"],
@@ -16,18 +17,22 @@
     ["`/add_balance`", "Add money to a users account (ADMIN)"],
     ["`/remove_balance`", "Remove money from a users account (ADMIN)"],
     ["`/download_logs`", "Download the current logs to a text file (ADMIN)"],
+    ["`/list_servers`", "Lets you select a server to list the data (ADMIN)"],
+    ["`/download_logs`", "Download the current logs to a text file (ADMIN)"],
     ["`/edit_config`", "Edit configuration settings for the Server (ADMIN)"],
     ["`/ban_player`", "Ban a player from the playing (ADMIN)"]
   ],
   "lucky_options": [
-    [[100, "<:money1:1311467410691461180> `100 Dollars`"], 0.3],
-    [[500, "<:money1:1311467410691461180> `500 Dollars`"], 0.2],
-    [[1000, "<:money2:1311467521576009728> `1000 Dollars`"], 0.16],
-    [[2500, "<:money3:1311467500600557668> `2500 Dollars`"], 0.1],
-    [[5000, "<:money4:1311466020845654086> `5000 Dollars`"], 0.09],
-    [[10000, "<:money5:1311466034846367744> `10,000 Dollars`"], 0.05],
-    [[50000, "<:money6:1311466057105412168> `50,000 Dollars`"], 0.007],
-    [[100000, "<:money7:1311466599202689065> `100,000 Dollars`"], 0.001]
+    [[0, "<:money1:1311467410691461180> `No Multiplier`"], 0.3],
+    [[0.1, "<:money1:1311467410691461180> `1.1x Multiplier`"], 0.2],
+    [[0.2, "<:money1:1311467410691461180> `1.2x Multiplier`"], 0.1],
+    [[0.3, "<:money2:1311467521576009728> `1.3x Multiplier`"], 0.05],
+    [[0.4, "<:money2:1311467521576009728> `1.4x Multiplier`"], 0.02],
+    [[0.5, "<:money3:1311467500600557668> `1.5x Multiplier`"], 0.01],
+    [[0.6, "<:money4:1311466020845654086> `1.6x Multiplier`"], 0.005],
+    [[0.7, "<:money5:1311466034846367744> `1.7x Multiplier`"], 0.002],
+    [[0.8, "<:money6:1311466057105412168> `1.8x Multiplier`"], 0.001],
+    [[0.9, "<:money7:1311466599202689065> `1.9x Multiplier`"], 0.0005]
   ],
   "casino_games": [
     {
@@ -134,7 +139,6 @@
         "- Match **3 or more symbols** to win\n",
         "- **More matches** = **Higher multiplier**\n",
         "- Each symbol has a unique multiplier\n",
-        "- Additional matches boost your winnings\n",
         "- Aim for rare symbols for bigger payouts!"
       ],
       "slot_data": [

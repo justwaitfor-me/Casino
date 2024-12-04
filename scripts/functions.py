@@ -29,6 +29,9 @@ def user(interaction):
 
     return True
 
+def formatt_int(longint:int):
+    return f"{longint:,}".replace(",", ".")
+
 
 def counts(user_id, guild_id, type: str):
     serverdata = get_serverdata()
@@ -185,7 +188,10 @@ def subtract_balance(user_id, interaction, amount):
     guild_id = interaction.guild.id
     user_data = check_user(interaction, target=user_id)
 
-    user_data["balance"] -= amount
+    if user_data["balance"] < amount:
+        user_data["balance"] = 0
+    else:
+        user_data["balance"] -= amount
 
     serverdata[str(guild_id)]["users"][str(user_id)] = user_data
     serverdata[str(guild_id)]["bank"] += amount
@@ -193,12 +199,16 @@ def subtract_balance(user_id, interaction, amount):
         json.dump(serverdata, file, indent=4)
 
 
+
 def add_balance(user_id, interaction, amount):
     serverdata = get_serverdata()
     guild_id = interaction.guild.id
     user_data = check_user(interaction, target=user_id)
 
-    user_data["balance"] += amount
+    if user_data["balance"] + amount >= get_data()["max_balance"]:
+        user_data["balance"] = get_data()["max_balance"]
+    else:
+        user_data["balance"] += amount
 
     serverdata[str(guild_id)]["users"][str(user_id)] = user_data
     serverdata[str(guild_id)]["bank"] -= amount
@@ -207,6 +217,13 @@ def add_balance(user_id, interaction, amount):
 
     if is_richest(user_id, guild_id):
         counts(user_id, guild_id, "count_top_leaderboard")
+
+
+def multiply_balance(user_id, interaction, multiplier):
+    user_data = check_user(interaction, target=user_id)
+
+    amount = user_data["balance"] * multiplier
+    add_balance(user_id, interaction, amount)
 
 
 def create_daily_log_file():

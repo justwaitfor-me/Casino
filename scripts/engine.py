@@ -8,10 +8,12 @@ import asyncio
 
 from scripts.functions import (
     get_data,
+    get_serverdata,
     counts,
     subtract_balance,
     add_balance,
     user,
+    formatt_int,
     get_footer,
 )
 
@@ -19,6 +21,14 @@ from scripts.functions import (
 async def blackjack_callback(interaction, bet: int):
     view = View()
     game = "blackjack"
+
+    balance = get_serverdata()[str(interaction.guild.id)]["users"][str(interaction.user.id)]["balance"]
+    if balance < bet:
+        await interaction.response.edit_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            f"You don't have enough money to place this bet. Your current balance is {balance}$."
+        )
+        return
 
     print(f"Current game: {game} by user {interaction.user.name} at {datetime.now()}")
 
@@ -80,7 +90,7 @@ async def blackjack_callback(interaction, bet: int):
             value=f"{player_hand} (Total: {sum(player_hand)})",
             inline=False,
         )
-        embed.add_field(name="Current Bet", value=f"{current_amount}$", inline=True)
+        embed.add_field(name="Current Bet", value=f"{formatt_int(current_amount)}$", inline=True)
         embed.set_footer(text=get_footer())
 
         content = f"\n# {player_hand_emojis} (Total: {sum(player_hand)})\n# {dealer_hand_emojis}"
@@ -122,7 +132,7 @@ async def blackjack_callback(interaction, bet: int):
         if lost:
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention} You lost your bet of {bet}$**",
+                value=f"**{interaction.user.mention} You lost your bet of {formatt_int(bet)}$**",
                 inline=False,
             )
             embed.set_image(
@@ -132,7 +142,7 @@ async def blackjack_callback(interaction, bet: int):
         elif tie:
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention} It's a tie! Your bet of {bet}$ is returned.**",
+                value=f"**{interaction.user.mention} It's a tie! Your bet of {formatt_int(bet)}$ is returned.**",
                 inline=False,
             )
             embed.set_image(
@@ -141,7 +151,7 @@ async def blackjack_callback(interaction, bet: int):
         else:
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention} You won {2 * bet}$!**",
+                value=f"**{interaction.user.mention} You won {formatt_int(2 * bet)}$!**",
                 inline=False,
             )
             embed.set_image(
@@ -180,7 +190,15 @@ async def blackjack_callback(interaction, bet: int):
 
 async def double_or_nothing_callback(interaction, bet: int):
     view = View()
-    game = "double_or_nothing"
+    game = "double_or_nothing"    
+    
+    balance = get_serverdata()[str(interaction.guild.id)]["users"][str(interaction.user.id)]["balance"]
+    if balance < bet:
+        await interaction.response.edit_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            f"You don't have enough money to place this bet. Your current balance is {balance}$."
+        )
+        return
 
     print(f"Current game: {game} by user {interaction.user.name} at {datetime.now()}")
 
@@ -207,8 +225,8 @@ async def double_or_nothing_callback(interaction, bet: int):
             url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif"
         )
 
-        embed.add_field(name="Bet", value=f"{bet}$", inline=True)
-        embed.add_field(name="Current Amount", value=f"{current_amount}$", inline=True)
+        embed.add_field(name="Bet", value=f"{formatt_int(bet)}$", inline=True)
+        embed.add_field(name="Current Amount", value=f"{formatt_int(current_amount)}$", inline=True)
         embed.add_field(name="", value="", inline=False)
         embed.add_field(
             name="Current Round", value=f"{current_round}/{max_rounds}", inline=True
@@ -264,7 +282,7 @@ async def double_or_nothing_callback(interaction, bet: int):
         else:
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention} You won {current_amount}$**",
+                value=f"**{interaction.user.mention} You won {formatt_int(current_amount)}$**",
                 inline=False,
             )
             embed.set_image(
@@ -305,6 +323,15 @@ async def double_or_nothing_callback(interaction, bet: int):
 
 async def roulette_callback(interaction, bet: int):
     game = "roulette"
+
+    balance = get_serverdata()[str(interaction.guild.id)]["users"][str(interaction.user.id)]["balance"]
+    if balance < bet:
+        await interaction.response.edit_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            f"You don't have enough money to place this bet. Your current balance is {balance}$."
+        )
+        return
+    
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
     roulette_colors = data["games"][game]["roulette_colors"]
@@ -369,11 +396,11 @@ async def roulette_callback(interaction, bet: int):
             url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.gif"
         )
 
-        embed.add_field(name="Bet", value=f"{bet}$", inline=True)
+        embed.add_field(name="Bet", value=f"{formatt_int(bet)}$", inline=True)
         embed.add_field(
             name="Selected Color", value=f"{selected_color or 'None'}", inline=True
         )
-        embed.add_field(name="Current Amount", value=f"{current_amount}$", inline=False)
+        embed.add_field(name="Current Amount", value=f"{formatt_int(current_amount)}$", inline=False)
 
         embed.set_footer(text=get_footer())
         return embed
@@ -385,7 +412,7 @@ async def roulette_callback(interaction, bet: int):
         if won:
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention} You won {current_amount}$ on {roll_result}!**",
+                value=f"**{interaction.user.mention} You won {formatt_int(current_amount)}$ on {roll_result}!**",
                 inline=False,
             )
             embed.set_image(
@@ -419,6 +446,14 @@ async def guess_the_number_callback(interaction, bet: int):
     view = View()
     game = "guessthenumber"
 
+    balance = get_serverdata()[str(interaction.guild.id)]["users"][str(interaction.user.id)]["balance"]
+    if balance < bet:
+        await interaction.response.edit_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            f"You don't have enough money to place this bet. Your current balance is {balance}$."
+        )
+        return
+
     print(f"Current game: {game} by user {interaction.user.name} at {datetime.now()}")
 
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
@@ -446,7 +481,7 @@ async def guess_the_number_callback(interaction, bet: int):
             url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.png"
         )
         embed.add_field(name="Bet", value=f"{bet}$", inline=True)
-        embed.add_field(name="Potential Winnings", value=f"{win_amount}$", inline=True)
+        embed.add_field(name="Potential Winnings", value=f"{formatt_int(win_amount)}$", inline=True)
         embed.add_field(
             name="Attempts", value=f"{attempts - current_attempt}", inline=True
         )
@@ -459,7 +494,7 @@ async def guess_the_number_callback(interaction, bet: int):
         if won:
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention}, you guessed correctly and won {win_amount}$!**",
+                value=f"**{interaction.user.mention}, you guessed correctly and won {formatt_int(win_amount)}$!**",
                 inline=False,
             )
             embed.set_image(
@@ -542,6 +577,15 @@ async def guess_the_number_callback(interaction, bet: int):
 
 async def slot_machine_callback(interaction, bet: int):
     game = "slot_machine"
+
+    balance = get_serverdata()[str(interaction.guild.id)]["users"][str(interaction.user.id)]["balance"]
+    if balance < bet:
+        await interaction.response.edit_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            f"You don't have enough money to place this bet. Your current balance is {balance}$."
+        )
+        return
+    
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
     # Slot data from the JSON configuration
@@ -590,7 +634,7 @@ async def slot_machine_callback(interaction, bet: int):
             url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(1, 2)}.png"
         )
 
-        embed.add_field(name="Bet", value=f"{bet}$", inline=True)
+        embed.add_field(name="Bet", value=f"{formatt_int(bet)}$", inline=True)
 
         if spin_result:
             embed.add_field(
@@ -746,7 +790,7 @@ async def slot_machine_callback(interaction, bet: int):
                 )
                 embed.add_field(
                     name="Result",
-                    value=f"**{self.interactionx.user.mention} You won {win}$ on the spin!**",
+                    value=f"**{self.interactionx.user.mention} You won {formatt_int(win)}$ on the spin!**",
                     inline=True,
                 )
                 embed.add_field(
@@ -787,6 +831,17 @@ async def slot_machine_callback(interaction, bet: int):
 
 async def horce_racing_callback(interaction, bet: int):
     game = "horce_racing"
+
+    balance = get_serverdata()[str(interaction.guild.id)]["users"][
+        str(interaction.user.id)
+    ]["balance"]
+    if balance < bet:
+        await interaction.response.edit_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            f"You don't have enough money to place this bet. Your current balance is {balance}$."
+        )
+        return
+
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
     horse_names = data["games"][game]["horse_names"]
@@ -795,15 +850,32 @@ async def horce_racing_callback(interaction, bet: int):
     win_multiplier = data["games"][game]["winning_multiplier"]
 
     horses = [f"🏇 {name}" for name in random.sample(horse_names, 4)]  # Random names
-    stadium = random.choice(stadiums) # Stadium
+    stadium = random.choice(stadiums)  # Stadium
     progress = [0] * len(horses)
     selected_horse = None
     winning_horse = None
 
+    # Add horse stats
+    horses_stats = {
+        horse: {
+            "speed": random.randint(3, 10),
+            "stamina": random.randint(3, 10),
+            "burst": random.randint(3, 10),
+        }
+        for horse in horses
+    }
+
+    # Add weather conditions
+    weather = random.choice(["Sunny", "Rainy", "Windy"])
+    weather_effect = {"Sunny": "speed", "Rainy": "stamina", "Windy": "burst"}
+    for horse in horses:
+        horses_stats[horse][weather_effect[weather]] += 2
+
     async def start_embed():
         embed = discord.Embed(
             title=data["games"][game]["friendly_name"],
-            description=data["games"][game]["description"],
+            description=f"{data['games'][game]['description']}\n\n"
+            f"### Current Weather: **{weather}**\n(Boosts {weather_effect[weather].capitalize()})",
             color=discord.Color.from_str(data["games"][game]["color"]),
             timestamp=datetime.now(),
         )
@@ -811,11 +883,16 @@ async def horce_racing_callback(interaction, bet: int):
             name=data["titel"],
             icon_url=f"{str(os.environ['IMAGES'])}/{data['games'][game]['author_img']}",
         )
-        embed.add_field(name="Bet", value=f"{bet}$", inline=True)
+        embed.add_field(name="Bet", value=f"{formatt_int(bet)}$", inline=True)
         embed.add_field(name="Multiplier", value=f"{win_multiplier}x", inline=True)
         embed.add_field(
             name="Choose a Horse",
-            value="\n".join([f"{i + 1}. {horse}" for i, horse in enumerate(horses)]),
+            value="\n".join(
+                [
+                    f"{i + 1}. {horse} - {stats}"
+                    for i, (horse, stats) in enumerate(horses_stats.items())
+                ]
+            ),
             inline=False,
         )
         embed.set_footer(text=get_footer())
@@ -826,7 +903,31 @@ async def horce_racing_callback(interaction, bet: int):
 
         race_message = None
         while max(progress) < finish_line:
-            progress = [p + random.randint(0, 2) for p in progress]
+            # Update progress with horse stats
+            progress = [
+                p
+                + random.randint(0, horses_stats[horse]["speed"])
+                + (horses_stats[horse]["burst"] if random.random() < 0.1 else 0)
+                for p, horse in zip(progress, horses)
+            ]
+
+            # Determine race events
+            event = random.choice(["Mud Puddle", "Burst of Energy", "Collision", None])
+            if event == "Mud Puddle":
+                progress = [max(0, p - 1) for p in progress]
+            elif event == "Burst of Energy":
+                lucky_horse = random.choice(horses)
+                progress[horses.index(lucky_horse)] += random.randint(2, 4)
+            elif event == "Collision":
+                unlucky_horse = random.choice(horses)
+                progress[horses.index(unlucky_horse)] = max(
+                    0, progress[horses.index(unlucky_horse)] - 3
+                )
+
+            # Check for a winning horse
+            for i, p in enumerate(progress):
+                if p >= finish_line and winning_horse is None:
+                    winning_horse = horses[i]
 
             selected_horse_progress = progress[horses.index(selected_horse)]
             selected_horse_percentage = (selected_horse_progress / finish_line) * 100
@@ -865,7 +966,7 @@ async def horce_racing_callback(interaction, bet: int):
             counts(interaction.user.id, interaction.guild_id, "count_winnings")
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention}, {winning_horse} won the race! You won {win_amount}$!**",
+                value=f"**{interaction.user.mention}, {winning_horse} won the race! You won {formatt_int(win_amount)}$!**",
                 inline=False,
             )
             embed.set_image(
@@ -875,7 +976,7 @@ async def horce_racing_callback(interaction, bet: int):
         else:
             embed.add_field(
                 name="Result",
-                value=f"**{interaction.user.mention}, {winning_horse} won the race, but your horse {selected_horse} lost. You lost {bet}$!**",
+                value=f"**{interaction.user.mention}, {winning_horse} won the race, but your horse {selected_horse} lost. You lost {formatt_int(bet)}$!**",
                 inline=False,
             )
             embed.set_image(

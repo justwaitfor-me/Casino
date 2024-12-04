@@ -10,15 +10,24 @@ import json
 import dotenv
 import logging
 import asyncio
+import uuid
+import markdown
+
+# Check if serverdata.json is there, if not make it
+if not os.path.exists("config/serverdata.json"):
+    with open("config/serverdata.json", "w") as file:
+        json.dump({"developer_mode": False}, file)
 
 from scripts.functions import (
     get_data,
     check_user,
     user,
+    formatt_int,
     counts,
     get_serverdata,
     add_balance,
     subtract_balance,
+    multiply_balance,
     log,
     check_banned,
 )
@@ -49,11 +58,6 @@ handler = logging.FileHandler(
 bot = commands.Bot(command_prefix="!", intents=intents)
 casino_game = random.choice(data.get("casino_games", {}))
 
-# Check if serverdata.json is there, if not make it
-if not os.path.exists("config/serverdata.json"):
-    with open("config/serverdata.json", "w") as file:
-        json.dump({"developer_mode": False}, file)
-
 
 @bot.event
 async def on_ready():
@@ -79,7 +83,7 @@ async def on_ready():
     lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-async def list(interaction: discord.Interaction):
+async def help(interaction: discord.Interaction):
     log(interaction.user.id, interaction.user.name, "/help command used", __file__)
 
     if check_banned(interaction):
@@ -137,7 +141,7 @@ async def play(interaction: discord.Interaction, bet: int):
     if bet > max_bet:
         await interaction.response.send_message(
             f"**Hey {interaction.user.mention}!**\n"
-            f"The maximum transaction amount is {max_bet}$.",
+            f"The maximum transaction amount is {formatt_int(max_bet)}$.",
             ephemeral=True,
         )
         return
@@ -245,11 +249,88 @@ async def play(interaction: discord.Interaction, bet: int):
 
     await interaction.response.send_message(
         f"**Hey {interaction.user.mention}!**\n"
-        f"Welcome to the casino! You've placed a bet of {bet}$. Choose a game to play and try your luck.\n"
-        f"`Balance: {balance}$`\n`Bet: {bet}$`\n\n**Available Games:**\n",
+        f"Welcome to the casino! You've placed a bet of {formatt_int(bet)}$. Choose a game to play and try your luck.\n"
+        f"`Balance: {formatt_int(balance)}$`\n`Bet: {formatt_int(bet)}$`\n\n**Available Games:**\n",
         view=view,
         ephemeral=False,
     )
+
+
+@bot.tree.command(name="luckywheel", description="Spin the wheel and try your luck")
+@app_commands.check(
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
+    == "True"
+)
+async def luckywheel(interaction: discord.Interaction):
+    log(
+        interaction.user.id, interaction.user.name, "/luckywheel command used", __file__
+    )
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction)
+    last_wheel = user_data.get("last_wheel")
+    current_date = datetime.now().date()
+
+    if (
+        last_wheel != "Never"
+        and datetime.fromisoformat(last_wheel).date() == current_date
+    ):
+        await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            "You've already spinned the wheel today. Come back tomorrow!",
+            ephemeral=True,
+        )
+    else:
+        # Define the sections of the wheel
+        lucky_options = get_data()["lucky_options"]
+
+        # Extract options and probabilities
+        options = [item[0] for item in lucky_options]  # Descriptions
+        probabilities = [item[1] for item in lucky_options]  # Probabilities
+
+        # Simulate the spinning animation
+        embed = discord.Embed(
+            title="🎡 Spinning the Lucky Wheel!",
+            description="Get ready to see where it lands!",
+            color=discord.Color.blue(),
+        )
+        embed.set_author(
+            name=get_data()["titel"],
+            icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
+        )
+
+        await interaction.response.send_message(
+            embed=embed, content=interaction.user.mention
+        )
+        message = (
+            await interaction.original_response()
+        )  # Get the sent message for editing
+
+        for i in range(15):  # Spin 15 times for the animation
+            current_option = random.choices(options, weights=probabilities, k=1)[0]
+            embed.description = f"**Spinning...**\n{current_option[1]}"
+            await message.edit(embed=embed, content=interaction.user.mention)
+            await asyncio.sleep(0.3)  # Delay between spins
+
+        # Final result
+        final_result = random.choices(options, weights=probabilities, k=1)[0]
+
+        multiply_balance(interaction.user.id, interaction, final_result[0])
+        serverdata = get_serverdata()
+        userdata = serverdata[str(interaction.guild.id)]["users"]
+        userdata[str(interaction.user.id)]["last_wheel"] = current_date.isoformat()
+
+        serverdata[str(interaction.guild.id)]["users"] = userdata
+        with open("config/serverdata.json", "w") as file:
+            json.dump(serverdata, file, indent=4)
+
+        embed.description = f"🎉 **Congratulations! You won:** {final_result[1]} 🎉"
+        embed.color = discord.Color.green()
+        await message.edit(embed=embed, content=interaction.user.mention)
 
 
 @bot.tree.command(name="daily", description="Claim your daily reward")
@@ -298,8 +379,8 @@ async def daily(interaction: discord.Interaction):
 
         await interaction.response.send_message(
             f"**Hey {interaction.user.mention}!**\n"
-            f"You've claimed your daily reward of {reward_amount}$!\n"
-            f"`New Balance: {str(int(user_data['balance'])+reward_amount)}$`",
+            f"You've claimed your daily reward of {formatt_int(reward_amount)}$!\n"
+            f"`New Balance: {formatt_int(int(user_data['balance'])+reward_amount)}$`",
             ephemeral=False,
         )
 
@@ -335,6 +416,9 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
     inventory_raw = user_data.get("inventory", [])
     inventory = get_achievement(inventory_raw)
 
+    inventory_len = len(inventory)
+    achievements_len = len(get_data()["achievements"])
+
     embed = discord.Embed(
         title=f"User Info for {target_user.name}",
         color=discord.Color.greyple(),
@@ -345,10 +429,10 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
         icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(url=target_user.avatar.url)
-    embed.add_field(name="Balance", value=f"{balance}$", inline=False)
+    embed.add_field(name="Balance", value=f"{formatt_int(balance)}$", inline=False)
     embed.add_field(name="Last Daily Claim", value=last_daily, inline=False)
     embed.add_field(
-        name="Achievements",
+        name=f"Achievements ({inventory_len}/{achievements_len})",
         value=f"{' '.join([f'{emoji} `{name}`' for name, emoji in inventory]) if inventory_raw else 'Empty'}",
         inline=False,
     )
@@ -375,7 +459,7 @@ async def balance(interaction: discord.Interaction):
 
     embed = discord.Embed(
         title="Your Balance",
-        description=f"Your current balance is: **{balance}$**",
+        description=f"Your current balance is: **{formatt_int(balance)}$**",
         color=discord.Color.greyple(),
         timestamp=datetime.now(),
     )
@@ -457,7 +541,7 @@ async def leaderboard(interaction: discord.Interaction):
 
     embed = discord.Embed(
         title="Leaderboard",
-        description=f"Top 10 users by balance and achievements\n**The Banks money is: *{serverdata[str(interaction.guild.id)]['bank']}$* **",
+        description=f"Top 10 users by balance and achievements\n**The Banks money is: *{formatt_int(serverdata[str(interaction.guild.id)]['bank'])}$* **",
         color=discord.Color.gold(),
         timestamp=datetime.now(),
     )
@@ -476,9 +560,12 @@ async def leaderboard(interaction: discord.Interaction):
         inventory_raw = user_data.get("inventory", [])
         inventory = get_achievement(inventory_raw)
 
+        inventory_len = len(inventory)
+        achievements_len = len(get_data()["achievements"])
+
         embed.add_field(
             name=f"{index}. {user.name}",
-            value=f"Balance: **{user_info['balance']}$**\n Achievements: {' '.join([f'{emoji} `{name}`' for name, emoji in inventory]) if inventory_raw else 'Empty'}",
+            value=f"Balance: **{formatt_int(user_info['balance'])}$**\n **Achievements ({inventory_len}/{achievements_len}):**\n {' '.join([f'{emoji} `{name}`' for name, emoji in inventory]) if inventory_raw else 'Empty'}",
             inline=False,
         )
 
@@ -502,7 +589,7 @@ async def send_money(
     log(
         interaction.user.id,
         interaction.user.name,
-        f"/send command used to send {amount}$ to {recipient.name}",
+        f"/send command used to send {formatt_int(amount)}$ to {recipient.name}",
         __file__,
     )
 
@@ -516,7 +603,7 @@ async def send_money(
 
     if sender_data["balance"] < amount:
         await interaction.response.send_message(
-            f"**{interaction.user.mention}**, you don't have enough money to send. Your current balance is {sender_data['balance']}$.",
+            f"**{interaction.user.mention}**, you don't have enough money to send. Your current balance is {formatt_int(sender_data['balance'])}$.",
             ephemeral=True,
         )
         return
@@ -529,7 +616,7 @@ async def send_money(
 
     if amount > max_transaction:
         await interaction.response.send_message(
-            f"**{interaction.user.mention}**, the maximum transaction amount is {max_transaction}$.",
+            f"**{interaction.user.mention}**, the maximum transaction amount is {formatt_int(max_transaction)}$.",
             ephemeral=True,
         )
         return
@@ -538,13 +625,13 @@ async def send_money(
     add_balance(recipient.id, interaction, amount)
 
     await interaction.response.send_message(
-        f"**{interaction.user.mention}**, you have successfully sent {amount}$ to {recipient.mention}.\n"
-        f"Your new balance: {sender_data['balance'] - amount}$",
+        f"**{interaction.user.mention}**, you have successfully sent {formatt_int(amount)}$ to {recipient.mention}.\n"
+        f"Your new balance: {formatt_int(sender_data['balance'] - amount)}$",
         ephemeral=True,
     )
 
     await interaction.channel.send(
-        f"{interaction.user.mention} has sent {amount}$ to {recipient.mention}!"
+        f"{interaction.user.mention} has sent {formatt_int(amount)}$ to {recipient.mention}!"
     )
 
 
@@ -554,7 +641,7 @@ async def send_money(
 async def add_balance_command(
     interaction: discord.Interaction,
     user: discord.Member,  # noqa: F811
-    amount: app_commands.Range[int, 1, 10000000000000],
+    amount: int,
 ):
     user_data = check_user(interaction, target=user.id)
 
@@ -562,12 +649,12 @@ async def add_balance_command(
     log(
         interaction.user.id,
         interaction.user.name,
-        f"Added {amount}$ to {user.name}'s balance",
+        f"Added {formatt_int(amount)}$ to {user.name}'s balance",
         __file__,
     )
 
     await interaction.response.send_message(
-        f"Added {amount}$ to {user.mention}'s balance. New balance: {user_data['balance']}$",
+        f"Added {formatt_int(amount)}$ to {user.mention}'s balance. New balance: {formatt_int(user_data['balance'] + amount)}$",
         ephemeral=True,
     )
 
@@ -577,7 +664,7 @@ async def add_balance_command(
 async def subtract_balance_command(
     interaction: discord.Interaction,
     user: discord.Member,  # noqa: F811
-    amount: app_commands.Range[int, 1, 10000000000000],
+    amount: int,
 ):
     user_data = check_user(interaction, target=user.id)
 
@@ -588,12 +675,12 @@ async def subtract_balance_command(
     log(
         interaction.user.id,
         interaction.user.name,
-        f"Subtracted {amount}$ from {user.name}'s balance",
+        f"Subtracted {formatt_int(amount)}$ from {user.name}'s balance",
         __file__,
     )
 
     await interaction.response.send_message(
-        f"Successfully subtracted {amount}$ from {user.mention}'s balance. New balance: {user_data['balance']}$",
+        f"Successfully subtracted {formatt_int(amount)}$ from {user.mention}'s balance. New balance: {formatt_int(user_data['balance'] + amount)}$",
         ephemeral=True,
     )
 
@@ -603,6 +690,13 @@ async def subtract_balance_command(
 async def download_log_command(interaction: discord.Interaction):
     log(interaction.user.id, interaction.user.name, "Downloaded the log file", __file__)
 
+    # Check if the user is a developer
+    if interaction.user.id not in get_data()["developer"]:
+        await interaction.response.send_message(
+            "You do not have permission to use this command.", ephemeral=True
+        )
+        return
+
     current_date = datetime.now().strftime("%Y-%m-%d")
     filename = f"logs/casino_{current_date}.log"
     with open(filename, "rb") as file:
@@ -611,6 +705,109 @@ async def download_log_command(interaction: discord.Interaction):
             file=discord.File(file, filename),
             ephemeral=True,
         )
+
+@bot.tree.command(name="download_serverdata", description="Download the current serverdata file")
+@commands.has_permissions(administrator=True)
+async def download_serverdata_command(interaction: discord.Interaction):
+    log(interaction.user.id, interaction.user.name, "Downloaded the data file", __file__)
+
+    # Check if the user is a developer
+    if interaction.user.id not in get_data()["developer"]:
+        await interaction.response.send_message(
+            "You do not have permission to use this command.", ephemeral=True
+        )
+        return
+
+    filename = "config/serverdata.json"
+    with open(filename, "rb") as file:
+        await interaction.response.send_message(
+            "Here is the current data file:",
+            file=discord.File(file, filename),
+            ephemeral=True,
+        )
+
+@bot.tree.command(
+    name="list_servers", description="List all servers in the server configuration"
+)
+@commands.has_permissions(administrator=True)
+async def list_servers(interaction: discord.Interaction):
+    log(interaction.user.id, interaction.user.name, "Listed serverdata", __file__)
+
+    # Replace `get_serverdata` with your actual function to retrieve server data.
+    serverdata = get_serverdata()
+
+    if not serverdata:
+        await interaction.response.send_message(
+            "Server configuration not found.", ephemeral=True
+        )
+        return
+
+    guilds = list(serverdata.keys())
+
+    class ServerSelection(discord.ui.Select):
+        def __init__(self):
+            options = [
+                discord.SelectOption(
+                    label=guild, description=f"Configuration for {guild}"
+                )
+                for guild in guilds
+            ]
+            super().__init__(
+                placeholder="Select a server",
+                options=options,
+            )
+
+        async def callback(self, interaction: discord.Interaction):
+            selected_guild = self.values[0]
+            server_config = serverdata[selected_guild]
+
+            server_name = serverdata[selected_guild]["info"]["name"]
+            # Check if the user is an administrator in the selected guild
+            guild = discord.utils.get(bot.guilds, name=server_name)
+            if guild is None:
+                await interaction.response.send_message(
+                    "Selected server not found in the bot's guilds.", ephemeral=True
+                )
+                return
+
+            member = guild.get_member(interaction.user.id)
+            if member is None or not member.guild_permissions.administrator:
+                await interaction.response.send_message(
+                    "You must be an admin on the selected server to use this command.",
+                    ephemeral=True,
+                )
+                return
+
+            md_content = f"# Server Data for {server_name}\n\n"
+            for key, value in server_config.items():
+                if isinstance(value, dict):
+                    md_content += f"## {key}\n\n"
+                    for subkey, subvalue in value.items():
+                        md_content += f"### {subkey}: {str(subvalue).replace("{", "* ").replace("}", "\n").replace("[", "\n").replace("]", "").replace(",", "")}\n\n"
+                    md_content += "\n\n"
+                else:
+                    md_content += f'### {key}: {value}\n'
+
+            # Save the markdown content to a file
+            hash_string = uuid.uuid4().hex
+            md_filename = f"temp/{hash_string}g.md"
+            with open(md_filename, "w") as f:
+                f.write(md_content)
+
+            # Send the markdown file and the serverdata.json file
+            with open(md_filename, "rb") as md_file:
+                await interaction.response.send_message(
+                    content=f"Here is the configuration for {selected_guild}:",
+                    files=[discord.File(md_file, md_filename)],
+                )
+
+    class ServerSelectionView(discord.ui.View):
+        def __init__(self):
+            super().__init__()
+            self.add_item(ServerSelection())
+
+    view = ServerSelectionView()
+    await interaction.response.send_message("Select a server:", view=view)
 
 
 @bot.tree.command(name="edit_config", description="Edit server configuration")
@@ -678,82 +875,6 @@ async def ban_player(interaction, player: discord.Member):
 
     with open("config/serverdata.json", "w") as file:
         json.dump(serverdata, file, indent=4)
-
-
-@bot.tree.command(name="luckywheel", description="Spin the wheel and try your luck")
-@app_commands.check(
-    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
-    == "True"
-)
-async def luckywheel(interaction: discord.Interaction):
-    log(
-        interaction.user.id, interaction.user.name, "/luckywheel command used", __file__
-    )
-    if check_banned(interaction):
-        return await interaction.response.send_message(
-            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
-            ephemeral=True,
-        )
-
-    user_data = check_user(interaction)
-    last_wheel = user_data.get("last_wheel")
-    current_date = datetime.now().date()
-
-    if (
-        last_wheel != "Never"
-        and datetime.fromisoformat(last_wheel).date() == current_date
-    ):
-        await interaction.response.send_message(
-            f"**Hey {interaction.user.mention}!**\n"
-            "You've already spinned the wheel today. Come back tomorrow!",
-            ephemeral=True,
-        )
-    else:
-        # Define the sections of the wheel
-        lucky_options = get_data()["lucky_options"]
-
-        # Extract options and probabilities
-        options = [item[0] for item in lucky_options]  # Descriptions
-        probabilities = [item[1] for item in lucky_options]  # Probabilities
-
-
-        # Simulate the spinning animation
-        embed = discord.Embed(
-            title="🎡 Spinning the Lucky Wheel!",
-            description="Get ready to see where it lands!",
-            color=discord.Color.blue(),
-        )
-        embed.set_author(
-            name=get_data()["titel"],
-            icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
-        )
-
-        await interaction.response.send_message(
-            embed=embed, content=interaction.user.mention
-        )
-        message = await interaction.original_response()  # Get the sent message for editing
-
-        for i in range(15):  # Spin 15 times for the animation
-            current_option = random.choices(options, weights=probabilities, k=1)[0]
-            embed.description = f"**Spinning...**\n{current_option[1]}"
-            await message.edit(embed=embed, content=interaction.user.mention)
-            await asyncio.sleep(0.3)  # Delay between spins
-
-        # Final result
-        final_result = random.choices(options, weights=probabilities, k=1)[0]
-
-        add_balance(interaction.user.id, interaction, final_result[0])
-        serverdata = get_serverdata()
-        userdata = serverdata[str(interaction.guild.id)]["users"]
-        userdata[str(interaction.user.id)]["last_wheel"] = current_date.isoformat()
-
-        serverdata[str(interaction.guild.id)]["users"] = userdata
-        with open("config/serverdata.json", "w") as file:
-            json.dump(serverdata, file, indent=4)
-
-        embed.description = f"🎉 **Congratulations! You won:** {final_result[1]} 🎉"
-        embed.color = discord.Color.green()
-        await message.edit(embed=embed, content=interaction.user.mention)
 
 
 @bot.command()
@@ -836,6 +957,28 @@ async def toggle_dev_mode(ctx):
 
 
 @bot.command()
+async def info(ctx):
+    # Get the bot's latency (ping)
+    latency = round(bot.latency * 1000)  # Convert from seconds to milliseconds
+
+    # Count the number of servers and users
+    total_servers = len(bot.guilds)
+    total_users = sum(guild.member_count for guild in bot.guilds)
+
+    # Format and send the response
+    await ctx.send(
+        f"**Bot Information:**\n"
+        f"Bot Name: {bot.user.name}\n"
+        f"Bot ID: {bot.user.id}\n"
+        f"Version: {get_data()['version']}\n"
+        f"Latency: {latency}ms\n"
+        f"Servers: {total_servers}\n"
+        f"Total Users: {total_users}\n"
+        f"Developed by: justwaitfor_me\n"
+    )
+
+
+@bot.command()
 async def ping(ctx):
     await ctx.send("Pong!")
 
@@ -843,6 +986,8 @@ async def ping(ctx):
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
+        return
+    elif get_serverdata()["developer_mode"]:
         return
 
     if message.content.startswith("yoo"):
