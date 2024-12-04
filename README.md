@@ -2,6 +2,14 @@
 
 ### A Discord bot that provides various casino-related features, such as slot machines, betting, and user management.
 
+![image](https://img.shields.io/badge/json-5E5C5C?style=for-the-badge&logo=json&logoColor=white)
+![image](https://img.shields.io/badge/Raspberry%20Pi-A22846?style=for-the-badge&logo=Raspberry%20Pi&logoColor=white)
+![image](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#white)
+![image](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)
+![image](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)
+![image](https://img.shields.io/badge/pypi-3775A9?style=for-the-badge&logo=pypi&logoColor=white)
+
+
 ## Features
 
 Slot Machine: Users can play a slot machine game with different payouts and winning chances.
@@ -24,21 +32,23 @@ Customizable Configuration: Server administrators can customize various aspects 
 
 ### Once the bot is running, you can interact with it using commands in Discord. Here are some example commands:
 
-| /play: <bet> | Play a slot machine game with a default bet of 100$. |
-| /balance: | View your current balance. |
-| /leaderboard: | View the top 7 users by balance and achievements. |
-| /info: | View your user information. |
-| /daily: | Claim your daily reward. |
-| /luckywheel: | Claim your lucky wheel reward. |
-| /achievements: | View all possible achievements. |
-| /send <user> <amount>: | Send money to another user. |
-| /add_balance <user> <amount>: | Add balance to a user (administrator only). |
-| /subtract_balance <user> <amount>: | Subtract balance from a user (administrator only). |
-| /download_log: | Download the current log file (administrator only). |
-| /download_serverdata: | Download the current serverdata file (administrator only). |
-| /list_servers: | Lets you select a server to list the data (administrator only). |
-| /edit_config: | Edit server configuration (administrator only). |
-| /ban_player: | Ban a player from the playing (ADMIN). |
+| Command                           | Description                                                       |
+| ---                               | ---                                                               |
+| /play: <bet>                      | Play a slot machine game with a default bet of 100$.              |
+| /balance:                         | View your current balance.                                        |
+| /leaderboard:                     | View the top 7 users by balance and achievements.                 |   
+| /info:                            | View your user information.                                       |
+| /daily:                           | Claim your daily reward.                                          |
+| /luckywheel:                      | Claim your lucky wheel reward.                                    |
+| /achievements:                    | View all possible achievements.                                   |
+| /send <user> <amount>:            | Send money to another user.                                       |
+| /add_balance <user> <amount>:     | Add balance to a user (administrator only).                       |
+| /subtract_balance <user> <amount>:| Subtract balance from a user (administrator only).                |
+| /download_log:                    | Download the current log file (administrator only).               |
+| /download_serverdata:             | Download the current serverdata file (administrator only).        |
+| /list_servers:                    | Lets you select a server to list the data (administrator only).   |
+| /edit_config:                     | Edit server configuration (administrator only).                   |
+| /ban_player:                      | Ban a player from the playing (ADMIN).                            |
 
 ## Customization
 
@@ -52,14 +62,16 @@ Customizable Configuration: Server administrators can customize various aspects 
 - SLOT_MACHINE_PAYOUTS: The payouts for each slot machine reel combination.
 - ACHIEVEMENTS: The list of achievements that users can earn.
 
-## Contributing
+## Aditional Information
 
-### Contributions are welcome! If you find any bugs or have any suggestions for improvements, please feel free to open an issue or submit a pull request.
+### Contributing
 
-## License
+**Contributions are welcome! If you find any bugs or have any suggestions for improvements, please feel free to open an issue or submit a pull request.**
 
-### This project is licensed under the MIT License.
+### License
 
-## Acknowledgments
+**This project is licensed under the MIT License.**
 
-## This bot was inspired by various casino-related Discord bots and tutorials found online.
+### Acknowledgments
+
+**This bot was inspired by various casino-related Discord bots and tutorials found online.**
