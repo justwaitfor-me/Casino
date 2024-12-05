@@ -11,7 +11,6 @@ import dotenv
 import logging
 import asyncio
 import uuid
-import markdown
 
 # Check if serverdata.json is there, if not make it
 if not os.path.exists("config/serverdata.json"):
@@ -22,8 +21,8 @@ from scripts.functions import (
     get_data,
     check_user,
     user,
-    formatt_int,
     counts,
+    formatt_int,
     get_serverdata,
     add_balance,
     subtract_balance,
