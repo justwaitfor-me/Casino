@@ -9,6 +9,7 @@ import random
 import json
 import dotenv
 import logging
+import asyncio
 
 from scripts.functions import (
     get_data,
@@ -21,13 +22,16 @@ from scripts.functions import (
     log,
     check_banned,
 )
+
 from scripts.engine import (
     blackjack_callback,
     guess_the_number_callback,
     double_or_nothing_callback,
     roulette_callback,
     slot_machine_callback,
+    horce_racing_callback,
 )
+
 from scripts.achievements import get_achievement
 
 intents = discord.Intents.default()
@@ -72,12 +76,18 @@ async def on_ready():
 
 @bot.tree.command(name="help", description="Lists all available commands")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-@app_commands.check(lambda i: check_banned(i))
 async def list(interaction: discord.Interaction):
     log(interaction.user.id, interaction.user.name, "/help command used", __file__)
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
     commands_list = get_data()["commands"]
 
     embed = discord.Embed(
@@ -87,11 +97,11 @@ async def list(interaction: discord.Interaction):
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
-        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png?raw=true",
+        name=get_data()["titel"],
+        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(
-        url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(3, 4)}.png?raw=true"
+        url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(3, 4)}.png"
     )
 
     await interaction.response.send_message(embed=embed, ephemeral=False)
@@ -100,10 +110,9 @@ async def list(interaction: discord.Interaction):
 @bot.tree.command(name="play", description="Play the casino games")
 @app_commands.describe(bet="The amount you want to bet")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-@app_commands.check(lambda i: check_banned(i))
 async def play(interaction: discord.Interaction, bet: int):
     log(
         interaction.user.id,
@@ -111,13 +120,18 @@ async def play(interaction: discord.Interaction, bet: int):
         f"/play command used with bet: {bet}",
         __file__,
     )
-    user_data = check_user(interaction.user.id, interaction.guild.id)
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction)
     balance = user_data["balance"]
 
     max_bet = int(
-        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]["config"][
-            "max_bet"
-        ]
+        get_serverdata(interaction)[str(interaction.guild.id)]["config"]["max_bet"]
     )
 
     if bet > max_bet:
@@ -180,7 +194,7 @@ async def play(interaction: discord.Interaction, bet: int):
             ),
             discord.SelectOption(
                 label="Pferde Wetten",
-                description="Currently unavailable",
+                description="Bet on a Horse",
                 emoji="<:casinochip6:1307379735147577394>",
                 value="pferde_wettem",
                 default=False,  # You can set this as selected initially if needed
@@ -210,9 +224,7 @@ async def play(interaction: discord.Interaction, bet: int):
         elif selected_game == "slot_machine":
             await slot_machine_callback(interaction, bet)
         elif selected_game == "pferde_wettem":
-            await interaction.response.send_message(
-                "Pferde Wettem is currently unavailable.", ephemeral=True
-            )
+            await horce_racing_callback(interaction, bet)
 
     # Attach the callback to the Select menu
     games_menu.callback = select_callback
@@ -242,13 +254,19 @@ async def play(interaction: discord.Interaction, bet: int):
 
 @bot.tree.command(name="daily", description="Claim your daily reward")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-@app_commands.check(lambda i: check_banned(i))
 async def daily(interaction: discord.Interaction):
     log(interaction.user.id, interaction.user.name, "/daily command used", __file__)
-    user_data = check_user(interaction.user.id, interaction.guild.id)
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction)
     last_daily = user_data.get("last_daily")
     current_date = datetime.now().date()
 
@@ -269,7 +287,7 @@ async def daily(interaction: discord.Interaction):
             serverdata[str(interaction.guild.id)]["config"]["daily_reward"]
         )  # Example reward amoun
 
-        add_balance(interaction.user.id, interaction.guild.id, reward_amount)
+        add_balance(interaction.user.id, interaction, reward_amount)
         serverdata = get_serverdata()
         userdata = serverdata[str(interaction.guild.id)]["users"]
         userdata[str(interaction.user.id)]["last_daily"] = current_date.isoformat()
@@ -289,10 +307,9 @@ async def daily(interaction: discord.Interaction):
 @bot.tree.command(name="info", description="Display user information")
 @app_commands.describe(user="The user to display information for (optional)")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-@app_commands.check(lambda i: check_banned(i))
 async def userinfo(interaction: discord.Interaction, user: discord.Member = None):  # noqa: F811
     target_user = user or interaction.user
     log(
@@ -301,7 +318,14 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
         f"/info command used for {target_user.name}",
         __file__,
     )
-    user_data = check_user(target_user.id, interaction.guild_id)
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction, target=target_user.id)
     balance = user_data["balance"]
 
     last_daily = user_data.get("last_daily", "Never")
@@ -317,8 +341,8 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
-        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png?raw=true",
+        name=get_data()["titel"],
+        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(url=target_user.avatar.url)
     embed.add_field(name="Balance", value=f"{balance}$", inline=False)
@@ -334,13 +358,19 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
 
 @bot.tree.command(name="balance", description="Display your current balance∞")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-@app_commands.check(lambda i: check_banned(i))
 async def balance(interaction: discord.Interaction):
     log(interaction.user.id, interaction.user.name, "/balance command used", __file__)
-    user_data = check_user(interaction.user.id, interaction.guild_id)
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction)
     balance = user_data["balance"]
 
     embed = discord.Embed(
@@ -350,8 +380,8 @@ async def balance(interaction: discord.Interaction):
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
-        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png?raw=true",
+        name=get_data()["titel"],
+        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(url=interaction.user.avatar.url)
 
@@ -360,10 +390,9 @@ async def balance(interaction: discord.Interaction):
 
 @bot.tree.command(name="achievements", description="Display all possible achievements")
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-@app_commands.check(lambda i: check_banned(i))
 async def achievements(interaction: discord.Interaction):
     log(
         interaction.user.id,
@@ -371,6 +400,13 @@ async def achievements(interaction: discord.Interaction):
         "/achievements command used",
         __file__,
     )
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
     achievements_list = data.get("achievements", {})
     embed = discord.Embed(
         title="Achievements",
@@ -385,7 +421,7 @@ async def achievements(interaction: discord.Interaction):
             inline=False,
         )
         embed.set_thumbnail(
-            url=f"{str(os.environ['IMAGES'])}/phone-{random.randint(1, 5)}.png?raw=true"
+            url=f"{str(os.environ['IMAGES'])}/phone-{random.randint(1, 5)}.png"
         )
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -395,10 +431,9 @@ async def achievements(interaction: discord.Interaction):
     name="leaderboard", description="Display the top users by balance and achievements"
 )
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
-@app_commands.check(lambda i: check_banned(i))
 async def leaderboard(interaction: discord.Interaction):
     log(
         interaction.user.id,
@@ -406,30 +441,37 @@ async def leaderboard(interaction: discord.Interaction):
         "/leaderboard command used",
         __file__,
     )
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
     serverdata = get_serverdata()
     user_data = serverdata[str(interaction.guild.id)]["users"]
     sorted_users = sorted(
         user_data.items(), key=lambda x: x[1]["balance"], reverse=True
     )
-    top_users = sorted_users[:10]
+    top_users = sorted_users[:7]
 
     embed = discord.Embed(
         title="Leaderboard",
-        description="Top 10 users by balance and achievements",
+        description=f"Top 10 users by balance and achievements\n**The Banks money is: *{serverdata[str(interaction.guild.id)]['bank']}$* **",
         color=discord.Color.gold(),
         timestamp=datetime.now(),
     )
     embed.set_author(
-        name="Slot Machine",
-        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png?raw=true",
+        name=get_data()["titel"],
+        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
     )
     embed.set_thumbnail(
-        url=f"{str(os.environ['IMAGES'])}/phone-{random.randint(1, 5)}.png?raw=true"
+        url=f"{str(os.environ['IMAGES'])}/phone-{random.randint(1, 5)}.png"
     )
 
     for index, (user_id, user_info) in enumerate(top_users, start=1):
         user = await bot.fetch_user(int(user_id))  # noqa: F811
-        user_data = check_user(user.id, interaction.guild.id)
+        user_data = check_user(interaction, target=user.id)
 
         inventory_raw = user_data.get("inventory", [])
         inventory = get_achievement(inventory_raw)
@@ -449,7 +491,7 @@ async def leaderboard(interaction: discord.Interaction):
     amount="The amount of money you want to send",
 )
 @app_commands.check(
-    lambda i: get_serverdata(str(i.guild.id))[str(i.guild.id)]["config"]["bot_enabled"]
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
     == "True"
 )
 async def send_money(
@@ -463,8 +505,14 @@ async def send_money(
         f"/send command used to send {amount}$ to {recipient.name}",
         __file__,
     )
-    sender_data = check_user(interaction.user.id, interaction.guild_id)
-    check_user(recipient.id, interaction.guild_id)
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    sender_data = check_user(interaction)
 
     if sender_data["balance"] < amount:
         await interaction.response.send_message(
@@ -474,10 +522,11 @@ async def send_money(
         return
 
     max_transaction = int(
-        get_serverdata(str(interaction.guild.id))[str(interaction.guild.id)]["config"][
+        get_serverdata(interaction)[str(interaction.guild.id)]["config"][
             "max_transactions"
         ]
     )
+
     if amount > max_transaction:
         await interaction.response.send_message(
             f"**{interaction.user.mention}**, the maximum transaction amount is {max_transaction}$.",
@@ -485,8 +534,8 @@ async def send_money(
         )
         return
 
-    subtract_balance(interaction.user.id, interaction.guild_id, amount)
-    add_balance(recipient.id, interaction.guild_id, amount)
+    subtract_balance(interaction.user.id, interaction, amount)
+    add_balance(recipient.id, interaction, amount)
 
     await interaction.response.send_message(
         f"**{interaction.user.mention}**, you have successfully sent {amount}$ to {recipient.mention}.\n"
@@ -499,6 +548,7 @@ async def send_money(
     )
 
 
+# ADMIN COMMANDS BELOW
 @bot.tree.command(name="add_balance", description="Add balance to a user")
 @commands.has_permissions(administrator=True)
 async def add_balance_command(
@@ -506,16 +556,16 @@ async def add_balance_command(
     user: discord.Member,  # noqa: F811
     amount: app_commands.Range[int, 1, 10000000000000],
 ):
-    user_data = check_user(user.id, interaction.guild_id)
+    user_data = check_user(interaction, target=user.id)
 
-    add_balance(user.id, interaction.guild_id, amount)
+    add_balance(user.id, interaction, amount)
     log(
         interaction.user.id,
         interaction.user.name,
         f"Added {amount}$ to {user.name}'s balance",
         __file__,
     )
-    user_data = check_user(user.id, interaction.guild_id)
+
     await interaction.response.send_message(
         f"Added {amount}$ to {user.mention}'s balance. New balance: {user_data['balance']}$",
         ephemeral=True,
@@ -529,19 +579,19 @@ async def subtract_balance_command(
     user: discord.Member,  # noqa: F811
     amount: app_commands.Range[int, 1, 10000000000000],
 ):
-    user_data = check_user(user.id, interaction.guild_id)
+    user_data = check_user(interaction, target=user.id)
 
     if user_data["balance"] < amount:
-        subtract_balance(user.id, interaction.guild_id, user_data["balance"])
+        subtract_balance(user.id, interaction, user_data["balance"])
     else:
-        subtract_balance(user.id, interaction.guild_id, amount)
+        subtract_balance(user.id, interaction, amount)
     log(
         interaction.user.id,
         interaction.user.name,
         f"Subtracted {amount}$ from {user.name}'s balance",
         __file__,
     )
-    user_data = check_user(user.id, interaction.guild_id)
+
     await interaction.response.send_message(
         f"Successfully subtracted {amount}$ from {user.mention}'s balance. New balance: {user_data['balance']}$",
         ephemeral=True,
@@ -578,13 +628,14 @@ async def edit_server_config(interaction: discord.Interaction):
         def __init__(self):
             super().__init__()
             for key, value in serverdata[guild_id]["config"].items():
-                self.add_item(
-                    discord.ui.TextInput(
-                        label=key,
-                        default=value,
-                        placeholder=f"Enter new value for {key}",
+                if key != "banned_players":
+                    self.add_item(
+                        discord.ui.TextInput(
+                            label=key,
+                            default=value,
+                            placeholder=f"Enter new value for {key}",
+                        )
                     )
-                )
 
         async def on_submit(self, interaction: discord.Interaction):
             for item in self.children:
@@ -629,12 +680,133 @@ async def ban_player(interaction, player: discord.Member):
         json.dump(serverdata, file, indent=4)
 
 
+@bot.tree.command(name="luckywheel", description="Spin the wheel and try your luck")
+@app_commands.check(
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
+    == "True"
+)
+async def luckywheel(interaction: discord.Interaction):
+    log(
+        interaction.user.id, interaction.user.name, "/luckywheel command used", __file__
+    )
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction)
+    last_wheel = user_data.get("last_wheel")
+    current_date = datetime.now().date()
+
+    if (
+        last_wheel != "Never"
+        and datetime.fromisoformat(last_wheel).date() == current_date
+    ):
+        await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            "You've already spinned the wheel today. Come back tomorrow!",
+            ephemeral=True,
+        )
+    else:
+        # Define the sections of the wheel
+        lucky_options = get_data()["lucky_options"]
+
+        # Extract options and probabilities
+        options = [item[0] for item in lucky_options]  # Descriptions
+        probabilities = [item[1] for item in lucky_options]  # Probabilities
+
+
+        # Simulate the spinning animation
+        embed = discord.Embed(
+            title="🎡 Spinning the Lucky Wheel!",
+            description="Get ready to see where it lands!",
+            color=discord.Color.blue(),
+        )
+        embed.set_author(
+            name=get_data()["titel"],
+            icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
+        )
+
+        await interaction.response.send_message(
+            embed=embed, content=interaction.user.mention
+        )
+        message = await interaction.original_response()  # Get the sent message for editing
+
+        for i in range(15):  # Spin 15 times for the animation
+            current_option = random.choices(options, weights=probabilities, k=1)[0]
+            embed.description = f"**Spinning...**\n{current_option[1]}"
+            await message.edit(embed=embed, content=interaction.user.mention)
+            await asyncio.sleep(0.3)  # Delay between spins
+
+        # Final result
+        final_result = random.choices(options, weights=probabilities, k=1)[0]
+
+        add_balance(interaction.user.id, interaction, final_result[0])
+        serverdata = get_serverdata()
+        userdata = serverdata[str(interaction.guild.id)]["users"]
+        userdata[str(interaction.user.id)]["last_wheel"] = current_date.isoformat()
+
+        serverdata[str(interaction.guild.id)]["users"] = userdata
+        with open("config/serverdata.json", "w") as file:
+            json.dump(serverdata, file, indent=4)
+
+        embed.description = f"🎉 **Congratulations! You won:** {final_result[1]} 🎉"
+        embed.color = discord.Color.green()
+        await message.edit(embed=embed, content=interaction.user.mention)
+
+
 @bot.command()
 @commands.has_permissions(administrator=True)
-async def release_notes(ctx):
+async def release_notes(ctx, send_here: bool = False):
     with open(f"docs/{get_data()['version']}.txt", "r") as file:
         notes = file.read()
-    await ctx.send(f"**{ctx.guild.default_role} Release Notes:**\n{notes}")
+
+    release_message = f"** {ctx.guild.default_role} Release Notes:**\n{notes}"
+
+    if send_here:
+        # Send only to the current channel
+        await ctx.send(release_message)
+        return
+
+    # Send to all guilds' system channel or the first available text channel
+    for guild in bot.guilds:
+        target_channel = guild.system_channel or next(
+            (
+                channel
+                for channel in guild.text_channels
+                if channel.permissions_for(guild.me).send_messages
+            ),
+            None,
+        )
+        if target_channel:
+            try:
+                await target_channel.send(release_message)
+            except Exception:
+                pass
+
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def brotcast(ctx, *, message: str):
+    broadcast_message = f"** {ctx.guild.default_role} Broadcast:**\n{message}"
+
+    for guild in bot.guilds:
+        # Prefer system channel or fallback to the first available text channel
+        target_channel = guild.system_channel or next(
+            (
+                channel
+                for channel in guild.text_channels
+                if channel.permissions_for(guild.me).send_messages
+            ),
+            None,
+        )
+        if target_channel:
+            try:
+                await target_channel.send(broadcast_message)
+            except Exception:
+                pass
+
 
 @bot.command()
 async def version(ctx):
@@ -679,9 +851,6 @@ async def on_message(message):
     if "jackpot" in message.content:
         await message.channel.send("💰 Jackpot! You're on a winning streak! 💰")
 
-    if message.content.startswith("yoo"):
-        await message.channel.send(message.author.mention + ", you're welcome!")
-
     if "lucky" in message.content:
         await message.channel.send(
             "🍀 Feeling lucky today? Try your luck at the casino! 🍀"
@@ -700,7 +869,13 @@ async def on_message(message):
             "🎲 Ready to gamble? Let's see if fortune favors you! 🎲"
         )
 
+    if "lakers" in message.content.lower():
+        await message.channel.send("🐢 Go Lakers!")
+
+    if "lebron" in message.content.lower():
+        await message.channel.send("🎩 LeBron James!")
+
     await bot.process_commands(message)
 
 
-bot.run(os.environ["TOKEN"], log_handler=handler)
+bot.run(os.environ["TOKEN"])  # , log_handler=handler)
