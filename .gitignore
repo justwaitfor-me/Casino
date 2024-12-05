@@ -6,6 +6,7 @@ Icon?
 serverdata.json
 userdata.json
 TODO.md
+*.temp.md
 
 # Node.js
 node_modules/

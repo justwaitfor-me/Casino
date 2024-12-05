@@ -1,0 +1,30 @@
+Hey @everyone! 🎉
+
+We’re thrilled to announce that on Saturday at 12:00 AM, the v2.0 Update for our Casino Bot will be officially released! 🎰✨ Until then, here's an exclusive sneak peek at the exciting features, improvements, and fixes that are coming your way:
+
+
+🚀 New Features & Improvements:
+Insta Replay: Play again without needing to use the /Play command!
+Item Shop: Purchase unique items to enhance your casino experience.
+Stock Market: Invest in stocks and watch your wealth grow!
+Prestige System: Increase your maximum betting limit with prestige.
+Advanced Horse Betting: More depth and excitement in horse races.
+Lucky Wheel: Now applies multipliers to your balance instead of direct cash payouts.
+Slash Command Overview: All slash commands will be neatly listed in the bot description.
+
+
+🛠️ Bug Fixes:
+Infinite Money Glitch has been patched.
+Lucky Wheel now gives accurate values.
+Fixed various gameplay bugs and issues with horse racing.
+
+
+🎮 Planned Updates for Games:
+Poker (Multiplayer): Still in progress – let us know what features you’d like to see!
+New Website: Coming soon, featuring leaderboards, stats, invite links, and more.
+
+For updates and details, visit our official website:
+🌐 https://casino.justwaitforme.de/
+
+
+Get ready for the big update – we can’t wait to share it with you! Thank you for your support and excitement. Let the countdown begin! 🎲 
