@@ -933,6 +933,8 @@ async def leaderboard(interaction: discord.Interaction):
         url=f"{str(os.environ['IMAGES'])}/phone-{random.randint(1, 5)}.png"
     )
 
+    await interaction.response.defer()
+
     for index, (user_id, user_info) in enumerate(top_users, start=1):
         user = await bot.fetch_user(int(user_id))  # noqa: F811
         user_data = check_user(interaction, target=user.id)
@@ -1377,38 +1379,36 @@ async def ping(ctx):
 async def on_message(message):
     if message.author == bot.user:
         return
-    elif get_serverdata()["developer_mode"]:
-        return
+    if not get_serverdata()["developer_mode"]:
+        if message.content.startswith("yoo"):
+            await message.channel.send(message.author.mention + ", you're welcome!")
 
-    if message.content.startswith("yoo"):
-        await message.channel.send(message.author.mention + ", you're welcome!")
+        if "jackpot" in message.content:
+            await message.channel.send("💰 Jackpot! You're on a winning streak! 💰")
 
-    if "jackpot" in message.content:
-        await message.channel.send("💰 Jackpot! You're on a winning streak! 💰")
+        if "lucky" in message.content:
+            await message.channel.send(
+                "🍀 Feeling lucky today? Try your luck at the casino! 🍀"
+            )
 
-    if "lucky" in message.content:
-        await message.channel.send(
-            "🍀 Feeling lucky today? Try your luck at the casino! 🍀"
-        )
+        if "slotmachine" in message.content:
+            await message.channel.send("🎰 Welcome to the Slot Machine! 🎰")
 
-    if "slotmachine" in message.content:
-        await message.channel.send("🎰 Welcome to the Slot Machine! 🎰")
+        if "casino" in message.content:
+            await message.channel.send(
+                "🎲 Welcome to the Casino! Place your bets and have fun! 🎲"
+            )
 
-    if "casino" in message.content:
-        await message.channel.send(
-            "🎲 Welcome to the Casino! Place your bets and have fun! 🎲"
-        )
+        if "gamble" in message.content:
+            await message.channel.send(
+                "🎲 Ready to gamble? Let's see if fortune favors you! 🎲"
+            )
 
-    if "gamble" in message.content:
-        await message.channel.send(
-            "🎲 Ready to gamble? Let's see if fortune favors you! 🎲"
-        )
+        if "lakers" in message.content.lower():
+            await message.channel.send("🐢 Go Lakers!")
 
-    if "lakers" in message.content.lower():
-        await message.channel.send("🐢 Go Lakers!")
-
-    if "lebron" in message.content.lower():
-        await message.channel.send("🎩 LeBron James!")
+        if "lebron" in message.content.lower():
+            await message.channel.send("🎩 LeBron James!")
 
     await bot.process_commands(message)
 
