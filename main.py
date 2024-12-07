@@ -1169,7 +1169,7 @@ async def list_servers(interaction: discord.Interaction):
                 if isinstance(value, dict):
                     md_content += f"## {key}\n\n"
                     for subkey, subvalue in value.items():
-                        md_content += f"### {subkey}: {str(subvalue).replace('{', '* ').replace('}', '\n').replace('[', '\n').replace(']', '').replace(',', '')}\n\n"
+                        md_content += f"### {subkey}: {str(subvalue).replace('{', '* ').replace('}', '\\n').replace('[', '\\n').replace(']', '').replace(',', '')}\n\n"
                     md_content += "\n\n"
                 else:
                     md_content += f"### {key}: {value}\n"
