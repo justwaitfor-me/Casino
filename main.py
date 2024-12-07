@@ -154,7 +154,7 @@ async def dashboard(interaction: discord.Interaction):
             ephemeral=True,
         )
 
-    dashboard_url = f"{get_data()["dashboard"]}{interaction.guild.id}"
+    dashboard_url = f"{get_data()['dashboard']}{interaction.guild.id}"
 
     embed = discord.Embed(
         title="Server Dashboard",
