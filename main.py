@@ -219,7 +219,7 @@ async def user_dashboard(interaction: discord.Interaction):
         )
 
     dashboard_url = (
-        f"{get_data()["dashboard"]}{interaction.guild.id}/{interaction.user.id}"
+        f"{get_data()['dashboard']}{interaction.guild.id}/{interaction.user.id}"
     )
 
     embed = discord.Embed(
