@@ -15,7 +15,7 @@ jobs:
       - name: Find latest .txt file
         id: find_latest_txt
         run: |
-          latest_file=$(ls -t docs/*.txt | head -n 1)
+          latest_file=$(find docs/ -name "*.txt" -type f -exec stat --format="%Y %n" {} + | sort -n -r | head -n 1 | cut -d' ' -f2-)
           echo "LATEST_FILE=$latest_file" >> $GITHUB_ENV
 
       - name: Send file content to Discord
