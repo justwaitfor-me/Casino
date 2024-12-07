@@ -111,6 +111,8 @@ def check_user(interaction, target=None):
         "last_wheel": "Never",
         "inventory": [],
         "last_gamble": None,
+        "max_bet": None,
+        "prestige_level": 0,
         "counts": {
             k: 0
             for k in [
@@ -315,3 +317,33 @@ def get_serverinfo(interaction):
         )
 
     return guild_info
+
+def validate_bet(interaction, bet):
+    if check_banned(interaction):
+        return (
+            False,
+            "You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+        )
+
+    user_data = check_user(interaction)
+    balance = user_data["balance"]
+
+    max_bet = (
+        int(get_serverdata(interaction)[str(interaction.guild.id)]["config"]["max_bet"])
+        if user_data["max_bet"] is None
+        else int(user_data["max_bet"])
+    )
+
+    if bet > max_bet:
+        return False, f"The maximum transaction amount is {formatt_int(max_bet)}$."
+
+    if bet <= 0:
+        return False, "Your bet must be greater than 0."
+
+    if balance < bet:
+        return (
+            False,
+            f"You don't have enough money to place this bet. Your current balance is {balance}$.",
+        )
+
+    return True, None

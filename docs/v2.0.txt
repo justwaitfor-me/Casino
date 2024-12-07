@@ -1,0 +1,29 @@
+**Release Notes: Version 2.0**
+
+Completed Features/Changes:
+- Added Insta-Replay without /Play command (Replay button added at the end of game messages).
+- Displayed serverdata.json in a user-friendly view.
+- Increased depth in horse racing betting games.
+- Displayed long numbers in a more readable format (added commas).
+- Added more suggestions for improvements.
+- Added !info command to display live bot information.
+- Added display of the number of remaining suggestions.
+- The lucky wheel should not give money, but increase the user's balance with various multiplayer games.
+- Prestige to increase the possible winning amount.
+
+Games:
+- Poker (Multiplayer) (Beta version planned for v2.1).
+
+Closed Bugs:
+- Fixed Infinite Money glitch when /Play is spammed without selecting a game, the balance is not checked in the game, and the user can go into debt.
+- Horse racing is not winnable.
+- Money should be directly deducted when starting the game.
+
+Planned Features/Changes:
+- Implement item shop.
+- Add stock market.
+- Prefix is not updated when configuration changes occur.
+- Add money voting command.
+- Poker (Multiplayer): (Beta version planned for v2.1).
+- /dashboard and /my-dashboard command for the website that displays the leaderboard and other information (invitation link, ping, active users, bank balance).
+- Website: Display leaderboard and other information (invitation link, ping, active users, bank balance).

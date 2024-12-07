@@ -13,10 +13,18 @@ from scripts.functions import (
     add_balance,
     user,
     get_footer,
+    validate_bet,
 )
 
 
 async def blackjack_callback(interaction, bet: int):
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        return await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
+        )
+
     view = View()
     game = "blackjack"
 
@@ -35,6 +43,8 @@ async def blackjack_callback(interaction, bet: int):
     card_emojis = data["games"][game]["card_emojis"]
     no_card_emoji = data["games"][game]["no_card"]
     descriptions = data["games"][game]["descriptions"]
+    
+    subtract_balance(interaction.user.id, interaction, bet)
 
     # Modify the draw_card function to return the card number and its corresponding emoji
     def draw_card(hand):
@@ -128,7 +138,6 @@ async def blackjack_callback(interaction, bet: int):
             embed.set_image(
                 url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction, bet)
         elif tie:
             embed.add_field(
                 name="Result",
@@ -155,6 +164,18 @@ async def blackjack_callback(interaction, bet: int):
             embed=embed, view=None, content=interaction.user.mention
         )
 
+        view = View()
+        replay_button = Button(label="Replay", style=discord.ButtonStyle.green)
+        replay_button.callback = (
+            lambda i: blackjack_callback(i, bet) if user(i) else None
+        )
+        view.add_item(replay_button)
+
+        await interaction.followup.edit_message(
+            interaction.message.id,
+            view=view,
+        )
+
     # Deal initial cards
     draw_card(player_hand)
     draw_card(player_hand)
@@ -179,6 +200,13 @@ async def blackjack_callback(interaction, bet: int):
 
 
 async def double_or_nothing_callback(interaction, bet: int):
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        return await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
+        )
+
     view = View()
     game = "double_or_nothing"
 
@@ -191,6 +219,8 @@ async def double_or_nothing_callback(interaction, bet: int):
 
     current_round = 1
     current_amount = bet
+    
+    subtract_balance(interaction.user.id, interaction, bet)
 
     async def update_embed():
         embed = discord.Embed(
@@ -260,7 +290,6 @@ async def double_or_nothing_callback(interaction, bet: int):
             embed.set_image(
                 url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction, bet)
         else:
             embed.add_field(
                 name="Result",
@@ -276,6 +305,18 @@ async def double_or_nothing_callback(interaction, bet: int):
 
         await interaction.response.edit_message(
             embed=embed, view=None, content=interaction.user.mention
+        )
+
+        view = View()
+        replay_button = Button(label="Replay", style=discord.ButtonStyle.green)
+        replay_button.callback = (
+            lambda i: double_or_nothing_callback(i, bet) if user(i) else None
+        )
+        view.add_item(replay_button)
+
+        await interaction.followup.edit_message(
+            interaction.message.id,
+            view=view,
         )
 
     double_button = Button(label="Double", style=discord.ButtonStyle.primary)
@@ -304,6 +345,13 @@ async def double_or_nothing_callback(interaction, bet: int):
 
 
 async def roulette_callback(interaction, bet: int):
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        return await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
+        )
+
     game = "roulette"
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
@@ -315,6 +363,8 @@ async def roulette_callback(interaction, bet: int):
     selected_color = None
 
     print(f"Current game: {game} by user {interaction.user.name} at {datetime.now()}")
+    
+    subtract_balance(interaction.user.id, interaction, bet)
 
     class RouletteModal(Modal):
         """Modal for user to select their roulette color."""
@@ -403,10 +453,21 @@ async def roulette_callback(interaction, bet: int):
             embed.set_image(
                 url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction, bet)
 
         await interaction.response.edit_message(
             embed=embed, view=None, content=interaction.user.mention
+        )
+
+        view = View()
+        replay_button = Button(label="Replay", style=discord.ButtonStyle.green)
+        replay_button.callback = (
+            lambda i: roulette_callback(i, bet) if user(i) else None
+        )
+        view.add_item(replay_button)
+
+        await interaction.followup.edit_message(
+            interaction.message.id,
+            view=view,
         )
 
     # Open the roulette modal for user input
@@ -416,6 +477,13 @@ async def roulette_callback(interaction, bet: int):
 
 
 async def guess_the_number_callback(interaction, bet: int):
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        return await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
+        )
+
     view = View()
     game = "guessthenumber"
 
@@ -429,6 +497,8 @@ async def guess_the_number_callback(interaction, bet: int):
     current_attempt = 0
     multiplier = data["games"][game]["multiplier"]  # Multiplier for correct guess
     win_amount = bet * multiplier
+    
+    subtract_balance(interaction.user.id, interaction, bet)
 
     async def update_embed():
         """Creates the dynamic embed to show game state to the user."""
@@ -476,9 +546,20 @@ async def guess_the_number_callback(interaction, bet: int):
             embed.set_image(
                 url=f"{str(os.environ['VIDEOS'])}/lose-{random.randint(1, 11)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction, bet)
 
         await interaction.response.edit_message(embed=embed, view=None)
+
+        view = View()
+        replay_button = Button(label="Replay", style=discord.ButtonStyle.green)
+        replay_button.callback = (
+            lambda i: guess_the_number_callback(i, bet) if user(i) else None
+        )
+        view.add_item(replay_button)
+
+        await interaction.followup.edit_message(
+            interaction.message.id,
+            view=view,
+        )
 
     class GuessModal(Modal):
         """Modal for users to input their guess."""
@@ -541,6 +622,13 @@ async def guess_the_number_callback(interaction, bet: int):
 
 
 async def slot_machine_callback(interaction, bet: int):
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        return await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
+        )
+
     game = "slot_machine"
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
@@ -558,6 +646,8 @@ async def slot_machine_callback(interaction, bet: int):
     spin_result = None
 
     print(f"Current game: {game} by user {interaction.user.name} at {datetime.now()}")
+                
+    subtract_balance(interaction.user.id, interaction, bet)
 
     async def update_embed(spin_result=None):
         # Create a dynamic description based on slot_data
@@ -767,13 +857,24 @@ async def slot_machine_callback(interaction, bet: int):
                 embed.set_image(
                     url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1,11)}.gif"
                 )
-                subtract_balance(self.interactionx.user.id, self.interactionx, bet)
 
             await self.interactionx.followup.edit_message(
                 self.interactionx.message.id,
                 embed=embed,
                 view=None,
                 content=self.interactionx.user.mention,
+            )
+
+            view = View()
+            replay_button = Button(label="Replay", style=discord.ButtonStyle.green)
+            replay_button.callback = (
+                lambda i: slot_machine_callback(i, bet) if user(i) else None
+            )
+            view.add_item(replay_button)
+
+            await self.interactionx.followup.edit_message(
+                self.interactionx.message.id,
+                view=view,
             )
 
     # Create the Spin button view with interactionx
@@ -786,6 +887,13 @@ async def slot_machine_callback(interaction, bet: int):
 
 
 async def horce_racing_callback(interaction, bet: int):
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        return await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
+        )
+    
     game = "horce_racing"
     counts(interaction.user.id, interaction.guild_id, "count_gambles")
 
@@ -799,6 +907,8 @@ async def horce_racing_callback(interaction, bet: int):
     progress = [0] * len(horses)
     selected_horse = None
     winning_horse = None
+    
+    subtract_balance(interaction.user.id, interaction, bet)
 
     async def start_embed():
         embed = discord.Embed(
@@ -881,13 +991,22 @@ async def horce_racing_callback(interaction, bet: int):
             embed.set_image(
                 url=f"{str(os.environ['VIDEOS'])}/loose-{random.randint(1, 11)}.gif"
             )
-            subtract_balance(interaction.user.id, interaction, bet)
 
         await interaction.followup.edit_message(
             interaction.message.id,
             embed=embed,
             view=None,
             content=interaction.user.mention,
+        )
+
+        view = View()
+        replay_button = Button(label="Replay", style=discord.ButtonStyle.green)
+        replay_button.callback = lambda i: horce_racing_callback(i, bet) if user(i) else None
+        view.add_item(replay_button)
+
+        await interaction.followup.edit_message(
+            interaction.message.id,
+            view=view,
         )
 
     async def select_horse_callback(interaction, horse_index: int):

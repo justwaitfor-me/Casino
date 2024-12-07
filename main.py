@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from discord.ui import View, Button, Select
+from discord.ui import View, Button, Select, Modal, TextInput
 
 from datetime import datetime
 import os
@@ -17,6 +17,8 @@ if not os.path.exists("config/serverdata.json"):
     with open("config/serverdata.json", "w") as file:
         json.dump({"developer_mode": False}, file)
 
+from scripts.poker_cog import PokerCog
+
 from scripts.functions import (
     get_data,
     check_user,
@@ -29,6 +31,7 @@ from scripts.functions import (
     multiply_balance,
     log,
     check_banned,
+    validate_bet,
 )
 
 from scripts.engine import (
@@ -44,6 +47,9 @@ from scripts.achievements import get_achievement
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True  # Enable member intents
+intents.presences = True  # Enable presence intents
+intents.message_content = True  # Enable message content intent
 
 data = get_data()
 dotenv.load_dotenv(".env")
@@ -75,6 +81,9 @@ async def on_ready():
             state="made by justwaitfor_me | assets by murmel265",
         )
     )
+
+    await bot.add_cog(PokerCog(bot))
+    print(f"Available cogs: {bot.cogs}")  # Check if PokerCog is in the list
 
 
 @bot.tree.command(name="help", description="Lists all available commands")
@@ -110,6 +119,134 @@ async def help(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, ephemeral=False)
 
 
+@bot.tree.command(name="dashboard", description="Navigate to the server dashboard")
+@app_commands.check(
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
+    == "True"
+)
+async def dashboard(interaction: discord.Interaction):
+    # LIVE CODE
+    button = discord.ui.Button(
+        style=discord.ButtonStyle.success,
+        label="Open Dashboard",
+        url=get_data()["dashboard"],
+    )
+    view = discord.ui.View()
+    view.add_item(button)
+
+    return await interaction.response.send_message(
+        f"**Hey {interaction.user.mention}!**\nSadly your Server Dashboard is not ready by now!",
+        view=view,
+        ephemeral=True,
+    )
+
+    #CURRENT BETA
+    log(
+        interaction.user.id,
+        interaction.user.name,
+        "/dashboard command used",
+        __file__,
+    )
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    dashboard_url = f"{get_data()["dashboard"]}{interaction.guild.id}"
+
+    embed = discord.Embed(
+        title="Server Dashboard",
+        description=f"Click the button below to navigate to the server dashboard:\n[Casino Dashboard]({dashboard_url})",
+        color=discord.Color.blue(),
+        timestamp=datetime.now(),
+    )
+    embed.set_author(
+        name=get_data()["titel"],
+        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
+    )
+    embed.set_thumbnail(
+        url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(3, 4)}.png"
+    )
+
+    button = discord.ui.Button(
+        style=discord.ButtonStyle.success,
+        label="Open Dashboard",
+        url=dashboard_url,
+    )
+    view = discord.ui.View()
+    view.add_item(button)
+
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+
+
+@bot.tree.command(
+    name="my-dashboard", description="Navigate to your personal dashboard"
+)
+@app_commands.check(
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
+    == "True"
+)
+async def user_dashboard(interaction: discord.Interaction):
+    # LIVE CODE
+    button = discord.ui.Button(
+        style=discord.ButtonStyle.success,
+        label="Open Dashboard",
+        url=get_data()["dashboard"],
+    )
+    view = discord.ui.View()
+    view.add_item(button)
+
+    return await interaction.response.send_message(
+        f"**Hey {interaction.user.mention}!**\nSadly your Personal Dashboard is not ready by now!",
+        view=view,
+        ephemeral=True,
+    )
+
+    # CURRENT BETA
+    log(
+        interaction.user.id,
+        interaction.user.name,
+        "/dashboard command used",
+        __file__,
+    )
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    dashboard_url = (
+        f"{get_data()["dashboard"]}{interaction.guild.id}/{interaction.user.id}"
+    )
+
+    embed = discord.Embed(
+        title="My Dashboard",
+        description=f"Click the button below to navigate to your dashboard:\n[Casino Dashboard]({dashboard_url})",
+        color=discord.Color.blue(),
+        timestamp=datetime.now(),
+    )
+    embed.set_author(
+        name=get_data()["titel"],
+        icon_url=f"{str(os.environ['IMAGES'])}/kasino-{random.randint(1, 3)}.png",
+    )
+    embed.set_thumbnail(
+        url=f"{str(os.environ['IMAGES'])}/croupier-{random.randint(3, 4)}.png"
+    )
+
+    button = discord.ui.Button(
+        style=discord.ButtonStyle.success,
+        label="Open Dashboard",
+        url=dashboard_url,
+    )
+    view = discord.ui.View()
+    view.add_item(button)
+
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+
+
 @bot.tree.command(name="play", description="Play the casino games")
 @app_commands.describe(bet="The amount you want to bet")
 @app_commands.check(
@@ -124,41 +261,15 @@ async def play(interaction: discord.Interaction, bet: int):
         __file__,
     )
 
-    if check_banned(interaction):
-        return await interaction.response.send_message(
-            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
-            ephemeral=True,
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
         )
 
     user_data = check_user(interaction)
     balance = user_data["balance"]
-
-    max_bet = int(
-        get_serverdata(interaction)[str(interaction.guild.id)]["config"]["max_bet"]
-    )
-
-    if bet > max_bet:
-        await interaction.response.send_message(
-            f"**Hey {interaction.user.mention}!**\n"
-            f"The maximum transaction amount is {formatt_int(max_bet)}$.",
-            ephemeral=True,
-        )
-        return
-
-    if bet <= 0:
-        await interaction.response.send_message(
-            f"**Hey {interaction.user.mention}!**\n" "Your bet must be greater than 0.",
-            ephemeral=True,
-        )
-        return
-
-    if balance < bet:
-        await interaction.response.send_message(
-            f"**Hey {interaction.user.mention}!**\n"
-            f"You don't have enough money to place this bet. Your current balance is {balance}$.",
-            ephemeral=True,
-        )
-        return
 
     # Create a Select Menu
     games_menu = Select(
@@ -253,6 +364,166 @@ async def play(interaction: discord.Interaction, bet: int):
         view=view,
         ephemeral=False,
     )
+
+
+# The command for starting a poker game
+@bot.tree.command(name="poker", description="Start a poker game (beta)")
+@app_commands.describe(bet="The amount you want to bet")
+async def poker(interaction: discord.Interaction, bet: int):
+    # LIVE CODE
+    return await interaction.response.send_message(
+        f"**Hey {interaction.user.mention}!**\nSadly our Poker Game is not ready by now!", ephemeral=True
+    )
+
+    # CURRENT BETA
+    # Validate the bet
+    is_valid, error_message = validate_bet(interaction, bet)
+
+    if not is_valid:
+        return await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n{error_message}", ephemeral=True
+        )
+
+    log(
+        interaction.user.id,
+        interaction.user.name,
+        f"Started a Poker game with bet: {bet}",
+        __file__,
+    )
+
+    # Get the rooms from the PokerCog
+    poker_cog = bot.get_cog("PokerCog")
+    if not poker_cog:
+        return await interaction.response.send_message(
+            "Poker game logic is still booting up. Please try again in one minute",
+            ephemeral=True,
+        )
+
+    rooms = poker_cog.rooms
+
+    # Create a dropdown for available rooms
+    room_options = [
+        discord.SelectOption(label=f"{room_id}", value=room_id)
+        for room_id in rooms
+        if len(rooms[room_id]["players"]) < 4
+    ]
+
+    # No available rooms, offer to create a new one
+    view = View()
+    create_room_button = Button(
+        label="Create a New Room", style=discord.ButtonStyle.primary
+    )
+    create_private_button = Button(
+        label="Create a Private Room", style=discord.ButtonStyle.success
+    )
+
+    async def create_room_callback(interaction):
+        # Create a new game without a password
+        room_id = f"game-{interaction.user.name}"
+        rooms[room_id] = {
+            "players": [interaction.user],
+            "pot": bet,
+            "deck": [f"{rank}{suit}" for rank in "23456789TJQKA" for suit in "♠♥♦♣"],
+            "community_cards": [],
+            "player_hands": {},
+        }
+        random.shuffle(rooms[room_id]["deck"])
+        subtract_balance(interaction.user.id, interaction, bet)
+        await interaction.response.edit_message(
+            content=f"**{interaction.user.mention}** created a new poker game.",
+            view=None,
+        )
+        await poker_cog.start_game(interaction, room_id, bet)
+
+    async def create_private_room_callback(interaction):
+        # Modal to input a password
+        class GuessModal(Modal):
+            """Modal for users to input their guess."""
+
+            pass_input = TextInput(
+                label="Password",
+                required=True,
+            )
+
+            async def on_submit(self, interaction):
+                password = self.pass_input.value
+
+                room_id = f"room-{password}"
+
+                if room_id in rooms:
+                    await interaction.followup.send(
+                        "This room already exists!", ephemeral=True
+                    )
+                else:
+                    rooms[room_id] = {
+                        "players": [interaction.user],
+                        "pot": bet,
+                        "deck": [
+                            f"{rank}{suit}" for rank in "23456789TJQKA" for suit in "♠♥♦♣"
+                        ],
+                        "community_cards": [],
+                        "player_hands": {},
+                    }
+                    random.shuffle(rooms[room_id]["deck"])
+                    subtract_balance(interaction.user.id, interaction, bet)
+                    await interaction.response.edit_message(
+                        content=f"**{interaction.user.mention}** created a new private poker room.",
+                        view=None,
+                    )
+                    await poker_cog.start_game(interaction, room_id, bet)
+
+        await interaction.response.send_modal(
+            GuessModal(title="Enter Password for Private Room")
+        )
+
+    create_room_button.callback = create_room_callback
+    create_private_button.callback = create_private_room_callback
+
+    view.add_item(create_room_button)
+    view.add_item(create_private_button)
+
+    async def select_callback(interaction: discord.Interaction):
+        # Check if the user interacting with the menu is the same as the one who invoked the command
+        if not user(interaction):
+            await interaction.response.send_message(
+                "You can't interact with this menu.", ephemeral=True
+            )
+            return
+
+        room_id = select.values[0]
+        room = rooms[room_id]
+
+        if interaction.user in room["players"]:
+            return await interaction.response.send_message(
+                "You are already in this room.", ephemeral=True
+            )
+
+        room["players"].append(interaction.user)
+        room["pot"] += bet
+        subtract_balance(interaction.user.id, interaction, bet)
+        await interaction.response.send_message(
+            content=f"**{interaction.user.mention}** joined the poker room {room_id}.",
+        )
+        await poker_cog.start_game(interaction, room_id, bet)
+
+    if room_options:
+        # Dropdown to select an existing room
+        select = Select(
+            placeholder="Choose an available room",
+            min_values=1,
+            max_values=1,
+            options=room_options,
+        )
+
+        select.callback = select_callback
+        view.add_item(select)
+
+        await interaction.response.send_message("Choose a room to join:", view=view)
+    else:
+        await interaction.response.send_message(
+            "No available rooms. Would you like to create a new room?",
+            view=view,
+        )
 
 
 @bot.tree.command(name="luckywheel", description="Spin the wheel and try your luck")
@@ -384,6 +655,112 @@ async def daily(interaction: discord.Interaction):
         )
 
 
+@bot.tree.command(
+    name="prestige", description="Reset your progress to achieve Prestige"
+)
+@app_commands.check(
+    lambda i: get_serverdata(interaction=i)[str(i.guild.id)]["config"]["bot_enabled"]
+    == "True"
+)
+async def prestige(interaction: discord.Interaction):
+    log(interaction.user.id, interaction.user.name, "/prestige command used", __file__)
+
+    if check_banned(interaction):
+        return await interaction.response.send_message(
+            content="You are banned from using this bot. (Or the bot is currently in Developer Mode)",
+            ephemeral=True,
+        )
+
+    user_data = check_user(interaction)
+    balance = user_data["balance"]
+
+    if user_data["max_bet"] is None:
+        max_bet = int(
+            get_serverdata(interaction)[str(interaction.guild.id)]["config"]["max_bet"]
+        )
+    else:
+        max_bet = int(user_data["max_bet"])
+
+    if balance < max_bet:
+        await interaction.response.send_message(
+            f"**Hey {interaction.user.mention}!**\n"
+            f"You need at least {formatt_int(max_bet)}$ to achieve Prestige.",
+            ephemeral=True,
+        )
+        return
+
+    # Warning message with a button
+    embed = discord.Embed(
+        title="Are you sure you want to Prestige?",
+        description=(
+            f"**Warning:** This will reset your balance to **1,000$**, and you will lose your current balance of **{formatt_int(balance)}$**. "
+            f"In return, your maximum bet will increase to **{formatt_int(int(str(balance)[0]) * (10 ** (len(str(balance)) - 1)))}$**."
+        ),
+        color=discord.Color.red(),
+    )
+
+    confirm_button = Button(label="Confirm Prestige", style=discord.ButtonStyle.green)
+    cancel_button = Button(label="Cancel", style=discord.ButtonStyle.red)
+
+    async def confirm_callback(button_interaction: discord.Interaction):
+        if button_interaction.user.id != interaction.user.id:
+            await button_interaction.response.send_message(
+                "You cannot confirm this action for another user.", ephemeral=True
+            )
+            return
+
+        # Prestige logic
+        new_max_bet = int(str(balance)[0]) * (10 ** (len(str(balance)) - 1))
+
+        subtract_balance(interaction.user.id, interaction, balance)
+        add_balance(interaction.user.id, interaction, 1000)
+
+        # Update the user's max_bet
+        serverdata = get_serverdata()
+        serverdata[str(interaction.guild.id)]["users"][str(interaction.user.id)][
+            "max_bet"
+        ] = new_max_bet
+        serverdata[str(interaction.guild.id)]["users"][str(interaction.user.id)][
+            "prestige_level"
+        ] += 1
+        with open("config/serverdata.json", "w") as file:
+            json.dump(serverdata, file, indent=4)
+
+        await button_interaction.response.edit_message(
+            content=(
+                f"**Congratulations {interaction.user.mention}!**\n"
+                f"You have achieved Prestige! Your new balance is **1,000$**.\n"
+                f"Your new maximum bet is **{formatt_int(new_max_bet)}$**."
+            ),
+            embed=None,
+            view=None,
+        )
+
+    async def cancel_callback(button_interaction: discord.Interaction):
+        if button_interaction.user.id != interaction.user.id:
+            await button_interaction.response.send_message(
+                "You cannot cancel this action for another user.", ephemeral=True
+            )
+            return
+
+        await button_interaction.response.edit_message(
+            content="Prestige canceled. No changes were made.",
+            embed=None,
+            view=None,
+        )
+
+    # Attach callbacks
+    confirm_button.callback = confirm_callback
+    cancel_button.callback = cancel_callback
+
+    # Create a view for buttons
+    view = View()
+    view.add_item(confirm_button)
+    view.add_item(cancel_button)
+
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
+
 @bot.tree.command(name="info", description="Display user information")
 @app_commands.describe(user="The user to display information for (optional)")
 @app_commands.check(
@@ -407,6 +784,7 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
 
     user_data = check_user(interaction, target=target_user.id)
     balance = user_data["balance"]
+    prestige_level = user_data["prestige_level"]
 
     last_daily = user_data.get("last_daily", "Never")
     if last_daily != "Never":
@@ -429,6 +807,9 @@ async def userinfo(interaction: discord.Interaction, user: discord.Member = None
     )
     embed.set_thumbnail(url=target_user.avatar.url)
     embed.add_field(name="Balance", value=f"{formatt_int(balance)}$", inline=False)
+    embed.add_field(
+        name="Prestige Level:", value=f"{formatt_int(prestige_level)}x", inline=False
+    )
     embed.add_field(name="Last Daily Claim", value=last_daily, inline=False)
     embed.add_field(
         name=f"Achievements ({inventory_len}/{achievements_len})",
@@ -705,10 +1086,15 @@ async def download_log_command(interaction: discord.Interaction):
             ephemeral=True,
         )
 
-@bot.tree.command(name="download_serverdata", description="Download the current serverdata file")
+
+@bot.tree.command(
+    name="download_serverdata", description="Download the current serverdata file"
+)
 @commands.has_permissions(administrator=True)
 async def download_serverdata_command(interaction: discord.Interaction):
-    log(interaction.user.id, interaction.user.name, "Downloaded the data file", __file__)
+    log(
+        interaction.user.id, interaction.user.name, "Downloaded the data file", __file__
+    )
 
     # Check if the user is a developer
     if interaction.user.id not in get_data()["developer"]:
@@ -724,6 +1110,7 @@ async def download_serverdata_command(interaction: discord.Interaction):
             file=discord.File(file, filename),
             ephemeral=True,
         )
+
 
 @bot.tree.command(
     name="list_servers", description="List all servers in the server configuration"
@@ -785,11 +1172,11 @@ async def list_servers(interaction: discord.Interaction):
                         md_content += f"### {subkey}: {str(subvalue).replace("{", "* ").replace("}", "\n").replace("[", "\n").replace("]", "").replace(",", "")}\n\n"
                     md_content += "\n\n"
                 else:
-                    md_content += f'### {key}: {value}\n'
+                    md_content += f"### {key}: {value}\n"
 
             # Save the markdown content to a file
             hash_string = uuid.uuid4().hex
-            md_filename = f"temp/{hash_string}g.md"
+            md_filename = f"temp/{hash_string}.temp.md"
             with open(md_filename, "w") as f:
                 f.write(md_content)
 
@@ -798,6 +1185,7 @@ async def list_servers(interaction: discord.Interaction):
                 await interaction.response.send_message(
                     content=f"Here is the configuration for {selected_guild}:",
                     files=[discord.File(md_file, md_filename)],
+                    ephemeral=True,
                 )
 
     class ServerSelectionView(discord.ui.View):
@@ -806,7 +1194,9 @@ async def list_servers(interaction: discord.Interaction):
             self.add_item(ServerSelection())
 
     view = ServerSelectionView()
-    await interaction.response.send_message("Select a server:", view=view)
+    await interaction.response.send_message(
+        "Select a server:", view=view, ephemeral=True
+    )
 
 
 @bot.tree.command(name="edit_config", description="Edit server configuration")
@@ -1022,4 +1412,4 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-bot.run(os.environ["TOKEN"])  # , log_handler=handler)
+bot.run(os.environ["TOKEN"] , log_handler=handler)

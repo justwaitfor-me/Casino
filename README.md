@@ -46,13 +46,17 @@ Customizable Configuration: Server administrators can customize various aspects 
 | Command                           | Description                                                       |
 | ---                               | ---                                                               |
 | /play: <bet>                      | Play a slot machine game with a default bet of 100$.              |
+| /poker: <bet>                     | Poker Game with multiple players (beta)                           |
 | /balance:                         | View your current balance.                                        |
 | /leaderboard:                     | View the top 7 users by balance and achievements.                 |   
 | /info:                            | View your user information.                                       |
 | /daily:                           | Claim your daily reward.                                          |
 | /luckywheel:                      | Claim your lucky wheel reward.                                    |
+| /prestige:                        | Reset your progress to achieve Prestige                           |
 | /achievements:                    | View all possible achievements.                                   |
 | /send <user> <amount>:            | Send money to another user.                                       |
+| /dashboard:                       | Navigate to ther server dashboard                                 |
+| /my-dashboard:                    | Navigate to your personal dashboard                               |
 | /add_balance <user> <amount>:     | Add balance to a user (administrator only).                       |
 | /subtract_balance <user> <amount>:| Subtract balance from a user (administrator only).                |
 | /download_log:                    | Download the current log file (administrator only).               |
