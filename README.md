@@ -1,7 +1,7 @@
 # Discord Casino Bot
 
 [![GitHub forks](https://badgen.net/github/forks/justwaitfor-me/Casino/)](https://GitHub.com/justwaitfor-me/Casino/)
-[![GitHub stars](https://badgen.net/github/stars/justwaitfor-me/Casino/)](https://GitHub.comjustwaitfor-me/Casino/)
+[![GitHub stars](https://badgen.net/github/stars/justwaitfor-me/Casino/)](https://GitHub.com/justwaitfor-me/Casino/)
 [![GitHub watchers](https://badgen.net/github/watchers/justwaitfor-me/Casino/)](https://GitHub.com/justwaitfor-me/Casino/)
 [![GitHub commits](https://img.shields.io/github/commits-since/justwaitfor-me/Casino/v1.9.svg)](https://GitHub.com/justwaitfor-me/Casino/)
 [![GitHub release](https://img.shields.io/github/release/justwaitfor-me/Casino.svg)](https://GitHub.com/justwaitfor-me/Casino/)
