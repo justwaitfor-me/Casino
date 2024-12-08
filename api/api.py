@@ -82,7 +82,10 @@ def run_api(bot):
 
     # Start the Flask app using Waitress in a separate thread
     def start_server():
-        serve(app, host="0.0.0.0", port=5000)
+        serve(app, debug=True, host="0.0.0.0", port=5000)
+
+        # Log the Flask app startup
+        app.logger.info("Flask app started on http://0.0.0.0:5000")
 
     thread = threading.Thread(target=start_server)
     thread.daemon = True  # Ensure the thread closes when the main program exits
