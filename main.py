@@ -45,6 +45,9 @@ from scripts.engine import (
 
 from scripts.achievements import get_achievement
 
+# FLASK API TEST
+from api import run_api
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True  # Enable member intents
@@ -84,6 +87,10 @@ async def on_ready():
 
     await bot.add_cog(PokerCog(bot))
     print(f"Available cogs: {bot.cogs}")  # Check if PokerCog is in the list
+
+    # Start the Flask API and print a success message
+    run_api(bot)
+    print("Flask API is running and ready to accept requests.")
 
 
 @bot.tree.command(name="help", description="Lists all available commands")
