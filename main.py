@@ -933,7 +933,6 @@ async def leaderboard(interaction: discord.Interaction):
         url=f"{str(os.environ['IMAGES'])}/phone-{random.randint(1, 5)}.png"
     )
 
-    await interaction.response.defer()
 
     for index, (user_id, user_info) in enumerate(top_users, start=1):
         user = await bot.fetch_user(int(user_id))  # noqa: F811
@@ -951,7 +950,7 @@ async def leaderboard(interaction: discord.Interaction):
             inline=False,
         )
 
-    await interaction.response.send_message(embed=embed, ephemeral=False)
+    await interaction.channel.send(embed=embed)
 
 
 @bot.tree.command(name="send", description="Send money to another player")
