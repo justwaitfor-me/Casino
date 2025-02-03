@@ -1,0 +1,32 @@
+name: Send Latest TXT to Discord
+
+on:
+  push:
+    paths:
+      - "docs/**/*.txt"
+
+jobs:
+  send-to-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Find latest .txt file
+        id: find_latest_txt
+        run: |
+          latest_file=$(ls -t docs/*.txt | head -n 1)
+          echo "LATEST_FILE=$latest_file" >> $GITHUB_ENV
+
+      - name: Send file content to Discord
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          # Read the content of the file
+          file_content=$(cat "$LATEST_FILE")
+
+          # Assemble the JSON payload with actual newlines
+          payload=$(jq -n --arg content "$file_content" '{"content": $content}')
+
+          # Send the payload to Discord
+          curl -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK_URL"

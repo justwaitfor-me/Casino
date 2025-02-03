@@ -1,0 +1,26 @@
+**Release-Notizen: Version 1.9**
+
+Abgeschlossene Funktionen/Änderungen:
+- Leaderboard-Leistung verbessert und verkürzt. (geschlossen)
+- Mehr Bilder hinzugefügt. (geschlossen)
+- Mehr JSON-Implementierungen in der engin.py-Datei hinzugefügt. (geschlossen)
+- Glücksrad-Befehl (/luckywheel-Befehl, einmal täglich) hinzugefügt. (geschlossen)
+- Spiele:
+  - Pferderennen (geschlossen)
+- Fehlerbehebungen:
+  - Andere Benutzer werden nicht angezeigt (nur der Interaktionssender). (behoben)
+  - Geldsystem ist korrigiert. (behoben)
+
+Geplante Funktionen/Änderungen:
+- Website: Leaderboard und weitere Informationen (Einladungslink, Ping, aktive Benutzer, Bankgeld) anzeigen. (offen)
+- Insta-Replay ohne /Play-Befehl hinzugefügt. (offen)
+- Itemshop implementiert. (offen)
+- Aktienmarkt hinzugefügt. (offen)
+- Präfix wird bei Konfigurationsänderungen nicht aktualisiert. (offen)
+- Abstimmungskommando für Geld hinzugefügt. (offen)
+
+-Games:
+    - Poker (Multiplayer): GitHub-Issues geöffnet. (offen)
+
+- Ziele:
+  - Eine Website erstellen, die den Leaderboard und weitere Informationen anzeigt (Einladungslink, Ping, aktive Benutzer, Bankgeld). (offen)

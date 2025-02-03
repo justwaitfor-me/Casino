@@ -1,0 +1,21 @@
+Release-Notizen: Version 1.6
+
+Abgeschlossene Funktionen/Änderungen:
+- Blackjack: Dealer-Karten werden nun nach dem Spielende angezeigt. (geschlossen)
+- Footer: Footer-Test implementiert mit Daten aus `data.json` und Name hinzugefügt. (geschlossen)
+- Version Control: Versionskontrolle hinzugefügt. (geschlossen)
+- Fehlerbehebungen:
+  - Mehrere Spieler können nun denselben /Play-Callback verwenden.
+  - Fehler bei Pferde Wetten RS behoben.
+  - Dezimalstellen im Slot Machine behoben.
+  - Blackjack: Fehler bei der Anzeige der einfachen Karte in der Hand des Spielers behoben.
+
+Geplante Funktionen/Änderungen:
+- Guess the Number: Spieler dürfen nicht weniger als 0 oder mehr als 10 raten. (offen)
+- Insta Replay: Funktion für ein Replay ohne den /Play-Befehl. (offen)
+- Item Shop: Entwicklung noch offen. (offen)
+- Aktien: Aktien-Funktion noch in Entwicklung. (offen)
+- Spiele:
+  - Pferderennen: Funktion noch in Entwicklung. (offen)
+  - Poker (Multiplayer): Funktion noch in Entwicklung. (offen)
+  - Glücksrad: Funktion noch in Entwicklung. (offen)

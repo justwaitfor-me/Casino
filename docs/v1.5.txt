@@ -1,0 +1,7 @@
+- **Initial** release of the Casino Bot.
+- **Added** basic casino games: Blackjack, Double or Nothing, Roulette, Guess the Number, and Slot Machine.
+- **Implemented** user balance and daily reward system.
+- **Added** commands for balance check, sending money, and leaderboard.
+- **Administrators** can now add/subtract balance and download logs.
+- **Customizable** server configuration and release notes command added.
+- **Bot** will respond to certain keywords and phrases related to gambling and casinos.
